@@ -38,6 +38,14 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - External evidence: Orfanidis single-stub treatment, Keysight toward-generator Smith-chart examples, NIST traveling-wave framework, and scikit-rf real-reference reflection convention. scikit-rf 2.0.1 independently cross-checked four required project cases to `3.6e-16` maximum junction-admittance difference and below `1.6e-14` residual.
 - Deviation: no external source publishes every project-specific fixture decimal. Published sources and four external tool checks confirm conventions/method; alternate formulation verifies remaining numeric fixtures. No claim equates project-authored Python with external authority.
 
+## Phase 2 implementation evidence — 2026-07-15
+
+- Owner: Codex implementation; commit: this change set.
+- Commands/results: direct Python reference verification, `bun run verify:references`, `bun run test:rf`, `bun run check:rf-boundary`, `bun run typecheck`, `bun run lint`, `bun run format:check`, `bun run ci`, and `git diff --check` pass.
+- RF evidence: 12 solved cases, both terminations, 9 equation assertions, 66 focused RF tests, finite-result residual gates, explicit canonical stub poles, and tagged edge classifications pass.
+- Boundary evidence: standalone ES2022 compilation passes; package, React, JSX, DOM, storage, URL, network, timer, date, console, and browser-state access remain prohibited.
+- Deviation: none.
+
 ## Release readiness
 
 - [ ] Product, mathematical, architecture, accessibility, export, offline, and engineering gates in `docs/release-checklist.md` complete.

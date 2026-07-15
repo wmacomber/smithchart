@@ -6,6 +6,7 @@ import {
   solveShuntStub,
   stubLengthForSusceptance,
   stubNormalizedSusceptance,
+  wavelengths,
 } from '..';
 const input = {
   load: { kind: 'finite' as const, impedanceOhms: complex(35, -22) },
@@ -68,5 +69,17 @@ describe('shunt solver', () => {
         const length = stubLengthForSusceptance(termination, b);
         expect(stubNormalizedSusceptance(termination, length)).toBeCloseTo(b, 9);
       }
+  });
+  it('reports canonical stub poles as non-finite', () => {
+    expect(Number.isFinite(stubNormalizedSusceptance('open', wavelengths(0.25)))).toBe(false);
+    expect(Number.isFinite(stubNormalizedSusceptance('short', wavelengths(0)))).toBe(false);
+    expect(Number.isFinite(stubNormalizedSusceptance('short', wavelengths(0.5)))).toBe(false);
+  });
+  it('returns numerical failure when finite input overflows derived physical lengths', () => {
+    const result = solveShuntStub({
+      ...input,
+      frequencyHz: hertz(Number.MIN_VALUE),
+    });
+    expect(result.status).toBe('numerical-failure');
   });
 });

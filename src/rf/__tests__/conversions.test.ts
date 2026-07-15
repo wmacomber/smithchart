@@ -7,6 +7,7 @@ import {
   denormalizeImpedance,
   impedanceToAdmittance,
   impedanceToReflection,
+  normalizeAdmittance,
   normalizeImpedance,
   ohms,
   reflectionToImpedance,
@@ -33,6 +34,8 @@ describe('RF conversions', () => {
     const dimensionalY = denormalizeAdmittance(normalizedY, z0);
     expect(dimensionalY.re).toBeCloseTo(normalizedY.re / 50, 12);
     expect(dimensionalY.im).toBeCloseTo(normalizedY.im / 50, 12);
+    expect(normalizeAdmittance(dimensionalY, z0).re).toBeCloseTo(normalizedY.re, 12);
+    expect(normalizeAdmittance(dimensionalY, z0).im).toBeCloseTo(normalizedY.im, 12);
   });
   it('agrees between impedance and admittance reflection forms', () => {
     const z = complex(0.7, -0.44);

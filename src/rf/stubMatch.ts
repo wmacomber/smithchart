@@ -85,7 +85,14 @@ export const stubNormalizedSusceptance = (
   termination: StubTermination,
   length: Wavelengths,
 ): number => {
-  const theta = 2 * Math.PI * length;
+  const canonicalLength = canonicalHalfWavelength(length);
+  if (termination === 'open' && canonicalLength === 0.25) {
+    return Number.POSITIVE_INFINITY;
+  }
+  if (termination === 'short' && canonicalLength === 0) {
+    return Number.NEGATIVE_INFINITY;
+  }
+  const theta = 2 * Math.PI * canonicalLength;
   return termination === 'open' ? Math.tan(theta) : -1 / Math.tan(theta);
 };
 
@@ -119,6 +126,15 @@ const makeSolution = (
   const resultingY = add(junctionY, complex(0, actualStubB));
   const resultingGamma = admittanceToReflection(resultingY);
   const residualMagnitude = magnitude(resultingGamma);
+  const wavelength = mediumWavelengthMeters(input.frequencyHz, input.velocityFactor);
+  const feedlineDistanceDegrees = wavelengthElectricalDegrees(distance);
+  const feedlineDistanceMeters = wavelengthDistanceMeters(distance, wavelength);
+  const junctionImpedanceOhms = denormalizeImpedance(junctionZ, z0);
+  const junctionAdmittanceSiemens = denormalizeAdmittance(junctionY, z0);
+  const requiredStubSusceptanceSiemens = siemens(required / z0);
+  const stubElectricalDegrees = wavelengthElectricalDegrees(stubLength);
+  const stubLengthMeters = wavelengthDistanceMeters(stubLength, wavelength);
+  const residualVswr = reflectionToVswr(resultingGamma);
   const diagnostics: MatchDiagnostics = {
     loadReflectionMagnitude: magnitude(gammaLoad),
     resultReflectionMagnitude: residualMagnitude,
@@ -128,32 +144,40 @@ const makeSolution = (
   if (
     !isFiniteComplex(junctionZ) ||
     !isFiniteComplex(junctionY) ||
+    !isFiniteComplex(junctionImpedanceOhms) ||
+    !isFiniteComplex(junctionAdmittanceSiemens) ||
     !Number.isFinite(actualStubB) ||
     !Number.isFinite(residualMagnitude) ||
+    !Number.isFinite(wavelength) ||
+    !Number.isFinite(feedlineDistanceDegrees) ||
+    !Number.isFinite(feedlineDistanceMeters) ||
+    !Number.isFinite(requiredStubSusceptanceSiemens) ||
+    !Number.isFinite(stubElectricalDegrees) ||
+    !Number.isFinite(stubLengthMeters) ||
+    !Number.isFinite(residualVswr) ||
     !withinTolerance(junctionY.re, 1, SOLVER_ABSOLUTE_TOLERANCE, SOLVER_RELATIVE_TOLERANCE) ||
     !withinTolerance(resultingY.im, 0, SOLVER_ABSOLUTE_TOLERANCE, SOLVER_RELATIVE_TOLERANCE) ||
     residualMagnitude > MAX_RESULT_REFLECTION
   ) {
     return null;
   }
-  const wavelength = mediumWavelengthMeters(input.frequencyHz, input.velocityFactor);
   return {
     id: 'A',
     feedlineDistanceWavelengths: distance,
-    feedlineDistanceDegrees: wavelengthElectricalDegrees(distance),
-    feedlineDistanceMeters: wavelengthDistanceMeters(distance, wavelength),
+    feedlineDistanceDegrees,
+    feedlineDistanceMeters,
     junctionNormalizedImpedance: junctionZ,
-    junctionImpedanceOhms: denormalizeImpedance(junctionZ, z0),
+    junctionImpedanceOhms,
     junctionNormalizedAdmittance: junctionY,
-    junctionAdmittanceSiemens: denormalizeAdmittance(junctionY, z0),
+    junctionAdmittanceSiemens,
     requiredStubNormalizedSusceptance: required,
-    requiredStubSusceptanceSiemens: siemens(required / z0),
+    requiredStubSusceptanceSiemens,
     stubLengthWavelengths: stubLength,
-    stubElectricalDegrees: wavelengthElectricalDegrees(stubLength),
-    stubLengthMeters: wavelengthDistanceMeters(stubLength, wavelength),
+    stubElectricalDegrees,
+    stubLengthMeters,
     resultingNormalizedAdmittance: resultingY,
     resultingReflectionCoefficient: resultingGamma,
-    residualVswr: reflectionToVswr(resultingGamma),
+    residualVswr,
     diagnostics,
   };
 };
@@ -216,6 +240,20 @@ export const solveShuntStub = (input: StubMatchInput): StubMatchResult => {
   const ordered = [candidates[0], candidates[1]].sort(
     (a, b) => a.feedlineDistanceWavelengths - b.feedlineDistanceWavelengths,
   );
+  if (
+    Math.abs(ordered[1]!.feedlineDistanceWavelengths - ordered[0]!.feedlineDistanceWavelengths) <=
+    PRIMITIVE_ABSOLUTE_TOLERANCE
+  ) {
+    return {
+      status: 'numerical-failure',
+      diagnostics: {
+        loadReflectionMagnitude: rho,
+        resultReflectionMagnitude: Number.POSITIVE_INFINITY,
+        conductanceError: Number.NaN,
+        susceptanceError: Number.NaN,
+      },
+    };
+  }
   const first = { ...ordered[0]!, id: 'A' as const };
   const second = { ...ordered[1]!, id: 'B' as const };
   return { status: 'solved', solutions: [first, second] };

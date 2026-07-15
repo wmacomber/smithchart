@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   add,
   complex,
+  conjugate,
   divide,
   fromPolar,
+  isFiniteComplex,
   magnitude,
   multiply,
+  phase,
   reciprocal,
   subtract,
 } from '../complex';
@@ -19,6 +22,12 @@ describe('complex arithmetic', () => {
   });
   it('converts polar values', () =>
     expect(magnitude(fromPolar(2, Math.PI / 3))).toBeCloseTo(2, 12));
+  it('conjugates, measures phase, and detects finite components', () => {
+    expect(conjugate(complex(2, -3))).toEqual(complex(2, 3));
+    expect(phase(complex(0, 1))).toBeCloseTo(Math.PI / 2, 12);
+    expect(isFiniteComplex(complex(2, -3))).toBe(true);
+    expect(isFiniteComplex(complex(Number.POSITIVE_INFINITY, 0))).toBe(false);
+  });
   it('divides without overflowing finite scale factors', () => {
     const large = divide(complex(1e308, 1e308), complex(1e308, -1e308));
     expect(large.re).toBeCloseTo(0, 12);
