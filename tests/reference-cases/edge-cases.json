@@ -1,0 +1,9 @@
+[
+  { "id": "matched", "load": { "kind": "finite", "r": 50, "x": 0 }, "expected": "matched" },
+  { "id": "open", "load": { "kind": "open" }, "expected": "open-circuit" },
+  { "id": "short", "load": { "kind": "finite", "r": 0, "x": 0 }, "expected": "lossless-boundary" },
+  { "id": "active", "load": { "kind": "finite", "r": -10, "x": 5 }, "expected": "active-load" },
+  { "id": "invalid-z0", "z0": 0, "expected": "invalid-input" },
+  { "id": "invalid-frequency", "frequency": 0, "expected": "invalid-input" },
+  { "id": "invalid-vf", "vf": 1.1, "expected": "invalid-input" }
+]

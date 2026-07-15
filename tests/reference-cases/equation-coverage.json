@@ -1,0 +1,13 @@
+{
+  "equations": [
+    "RF-NORM-001",
+    "RF-GAMMA-001",
+    "RF-ZFROMGAMMA-001",
+    "RF-ADMITTANCE-001",
+    "RF-LINE-001",
+    "RF-G1-001",
+    "RF-STUB-OPEN-001",
+    "RF-STUB-SHORT-001",
+    "RF-WAVELENGTH-001"
+  ]
+}

@@ -1,0 +1,244 @@
+[
+  {
+    "id": "resistive-low",
+    "r": 25,
+    "x": 0,
+    "z0": 50,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "clockwise toward generator"
+    },
+    "equations": [
+      "RF-NORM-001",
+      "RF-GAMMA-001",
+      "RF-G1-001",
+      "RF-STUB-OPEN-001",
+      "RF-STUB-SHORT-001"
+    ],
+    "expected": {
+      "open": [
+        [0.097956638008, -0.707106781187, 0.097956638008],
+        [0.402043361992, 0.707106781187, 0.402043361992]
+      ],
+      "short": [
+        [0.097956638008, -0.707106781187, 0.347956638008],
+        [0.402043361992, 0.707106781187, 0.152043361992]
+      ]
+    }
+  },
+  {
+    "id": "resistive-high",
+    "r": 100,
+    "x": 0,
+    "z0": 50,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "clockwise toward generator"
+    },
+    "equations": ["RF-ZFROMGAMMA-001", "RF-ADMITTANCE-001", "RF-LINE-001"],
+    "expected": {
+      "open": [
+        [0.152043361992, 0.707106781187, 0.402043361992],
+        [0.347956638008, -0.707106781187, 0.097956638008]
+      ],
+      "short": [
+        [0.152043361992, 0.707106781187, 0.152043361992],
+        [0.347956638008, -0.707106781187, 0.347956638008]
+      ]
+    }
+  },
+  {
+    "id": "capacitive-hf",
+    "r": 35,
+    "x": -22,
+    "z0": 50,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "negative X lower chart"
+    },
+    "equations": ["RF-NORM-001", "RF-GAMMA-001", "RF-LINE-001", "RF-G1-001"],
+    "expected": {
+      "open": [
+        [0.19801429754, -0.636508332344, 0.090214146576],
+        [0.497052876135, 0.636508332344, 0.409785853424]
+      ],
+      "short": [
+        [0.19801429754, -0.636508332344, 0.340214146576],
+        [0.497052876135, 0.636508332344, 0.159785853424]
+      ]
+    }
+  },
+  {
+    "id": "inductive-hf",
+    "r": 35,
+    "x": 22,
+    "z0": 50,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "positive X upper chart"
+    },
+    "equations": ["RF-NORM-001", "RF-GAMMA-001", "RF-LINE-001", "RF-G1-001"],
+    "expected": {
+      "open": [
+        [0.002947123865, -0.636508332344, 0.090214146576],
+        [0.30198570246, 0.636508332344, 0.409785853424]
+      ],
+      "short": [
+        [0.002947123865, -0.636508332344, 0.340214146576],
+        [0.30198570246, 0.636508332344, 0.159785853424]
+      ]
+    }
+  },
+  {
+    "id": "quadrant-cap",
+    "r": 25,
+    "x": -25,
+    "z0": 50,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "quadrant boundary"
+    },
+    "equations": ["RF-STUB-OPEN-001", "RF-STUB-SHORT-001"],
+    "expected": {
+      "open": [
+        [0, 1, 0.375],
+        [0.176208191175, -1, 0.125]
+      ],
+      "short": [
+        [0, 1, 0.125],
+        [0.176208191175, -1, 0.375]
+      ]
+    }
+  },
+  {
+    "id": "quadrant-ind",
+    "r": 25,
+    "x": 25,
+    "z0": 50,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "quadrant boundary"
+    },
+    "equations": ["RF-STUB-OPEN-001", "RF-STUB-SHORT-001"],
+    "expected": {
+      "open": [
+        [0, -1, 0.125],
+        [0.323791808825, 1, 0.375]
+      ],
+      "short": [
+        [0, -1, 0.375],
+        [0.323791808825, 1, 0.125]
+      ]
+    }
+  },
+  {
+    "id": "system-75",
+    "r": 42,
+    "x": -30,
+    "z0": 75,
+    "frequencyHz": 10000000,
+    "velocityFactor": 0.8,
+    "expectedWavelengthMeters": 23.98339664,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "75 ohm normalization"
+    },
+    "equations": ["RF-NORM-001", "RF-WAVELENGTH-001"],
+    "expected": {
+      "open": [
+        [0.173592424205, -0.794624799153, 0.106865346669],
+        [0.48378280801, 0.794624799153, 0.393134653331]
+      ],
+      "short": [
+        [0.173592424205, -0.794624799153, 0.356865346669],
+        [0.48378280801, 0.794624799153, 0.143134653331]
+      ]
+    }
+  },
+  {
+    "id": "vhf",
+    "r": 28,
+    "x": 18,
+    "z0": 50,
+    "frequencyHz": 146000000,
+    "velocityFactor": 0.78,
+    "expectedWavelengthMeters": 1.60163094,
+    "tolerance": 1e-9,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "VHF example"
+    },
+    "equations": ["RF-WAVELENGTH-001", "RF-LINE-001"],
+    "expected": {
+      "open": [
+        [0.023495438825, -0.759699188589, 0.103399742871],
+        [0.331271162135, 0.759699188589, 0.396600257129]
+      ],
+      "short": [
+        [0.023495438825, -0.759699188589, 0.353399742871],
+        [0.331271162135, 0.759699188589, 0.146600257129]
+      ]
+    }
+  },
+  {
+    "id": "near-open",
+    "r": 5000,
+    "x": 800,
+    "z0": 50,
+    "tolerance": 1e-8,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "finite near-open"
+    },
+    "equations": ["RF-GAMMA-001", "RF-G1-001"],
+    "expected": {
+      "open": [
+        [0.234583509243, 10.028459502835, 0.265818038485],
+        [0.265913120855, -10.028459502835, 0.234181961515]
+      ],
+      "short": [
+        [0.234583509243, 10.028459502835, 0.015818038485],
+        [0.265913120855, -10.028459502835, 0.484181961515]
+      ]
+    }
+  },
+  {
+    "id": "near-short",
+    "r": 0.5,
+    "x": 0.2,
+    "z0": 50,
+    "tolerance": 1e-8,
+    "source": {
+      "title": "Independent Python analytical calculation",
+      "provider": "project verifier",
+      "convention": "finite near-short"
+    },
+    "equations": ["RF-ADMITTANCE-001", "RF-ZFROMGAMMA-001"],
+    "expected": {
+      "open": [
+        [0.015225952597, -9.900080807751, 0.233978216289],
+        [0.483500687316, 9.900080807751, 0.266021783711]
+      ],
+      "short": [
+        [0.015225952597, -9.900080807751, 0.483978216289],
+        [0.483500687316, 9.900080807751, 0.016021783711]
+      ]
+    }
+  }
+]

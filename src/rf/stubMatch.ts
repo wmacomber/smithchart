@@ -1,0 +1,208 @@
+import { denormalizeAdmittance, impedanceToAdmittance } from './admittance';
+import type { Complex } from './complex';
+import { add, complex, isFiniteComplex, magnitude, phase } from './complex';
+import {
+  MAX_RESULT_REFLECTION,
+  PRIMITIVE_ABSOLUTE_TOLERANCE,
+  canonicalHalfWavelength,
+  positiveAngle,
+} from './conventions';
+import { denormalizeImpedance, normalizeImpedance } from './impedance';
+import type { Degrees, Hertz, Meters, Ohms, Siemens, Wavelengths } from './quantities';
+import {
+  mediumWavelengthMeters,
+  siemens,
+  wavelengthDistanceMeters,
+  wavelengthElectricalDegrees,
+  wavelengths,
+} from './quantities';
+import {
+  admittanceToReflection,
+  impedanceToReflection,
+  reflectionToImpedance,
+  reflectionToVswr,
+} from './reflection';
+import { rotateTowardGenerator } from './transmissionLine';
+import type { ValidationIssue } from './validation';
+import { validateStubMatchInput } from './validation';
+
+export type Load =
+  { readonly kind: 'finite'; readonly impedanceOhms: Complex } | { readonly kind: 'open' };
+export type StubTermination = 'open' | 'short';
+
+export interface StubMatchInput {
+  readonly load: Load;
+  readonly characteristicImpedanceOhms: Ohms;
+  readonly frequencyHz: Hertz;
+  readonly velocityFactor: number;
+  readonly termination: StubTermination;
+}
+
+export interface MatchDiagnostics {
+  readonly loadReflectionMagnitude: number;
+  readonly resultReflectionMagnitude: number;
+  readonly conductanceError: number;
+  readonly susceptanceError: number;
+}
+
+export interface StubMatchSolution {
+  readonly id: 'A' | 'B';
+  readonly feedlineDistanceWavelengths: Wavelengths;
+  readonly feedlineDistanceDegrees: Degrees;
+  readonly feedlineDistanceMeters: Meters;
+  readonly junctionNormalizedImpedance: Complex;
+  readonly junctionImpedanceOhms: Complex;
+  readonly junctionNormalizedAdmittance: Complex;
+  readonly junctionAdmittanceSiemens: Complex;
+  readonly requiredStubNormalizedSusceptance: number;
+  readonly requiredStubSusceptanceSiemens: Siemens;
+  readonly stubLengthWavelengths: Wavelengths;
+  readonly stubElectricalDegrees: Degrees;
+  readonly stubLengthMeters: Meters;
+  readonly resultingNormalizedAdmittance: Complex;
+  readonly resultingReflectionCoefficient: Complex;
+  readonly residualVswr: number;
+  readonly diagnostics: MatchDiagnostics;
+}
+
+export type StubMatchResult =
+  | {
+      readonly status: 'solved';
+      readonly solutions: readonly [StubMatchSolution, StubMatchSolution];
+    }
+  | { readonly status: 'matched'; readonly diagnostics: MatchDiagnostics }
+  | {
+      readonly status: 'no-passive-solution';
+      readonly reason: 'active-load' | 'open-circuit' | 'lossless-boundary';
+    }
+  | { readonly status: 'invalid-input'; readonly issues: readonly ValidationIssue[] }
+  | { readonly status: 'numerical-failure'; readonly diagnostics: MatchDiagnostics };
+
+export const stubNormalizedSusceptance = (
+  termination: StubTermination,
+  length: Wavelengths,
+): number => {
+  const theta = 2 * Math.PI * length;
+  return termination === 'open' ? Math.tan(theta) : -1 / Math.tan(theta);
+};
+
+export const stubLengthForSusceptance = (
+  termination: StubTermination,
+  susceptance: number,
+): Wavelengths => {
+  if (termination === 'open') {
+    return wavelengths(
+      canonicalHalfWavelength(positiveAngle(Math.atan2(susceptance, 1)) / (2 * Math.PI)),
+    );
+  }
+  if (Math.abs(susceptance) <= PRIMITIVE_ABSOLUTE_TOLERANCE) return wavelengths(0.25);
+  const theta = positiveAngle(Math.atan2(-1, susceptance));
+  return wavelengths(canonicalHalfWavelength(theta / (2 * Math.PI)));
+};
+
+const makeSolution = (
+  input: StubMatchInput,
+  gammaLoad: Complex,
+  targetJunctionSusceptance: number,
+  distanceValue: number,
+): StubMatchSolution | null => {
+  const z0 = input.characteristicImpedanceOhms;
+  const distance = wavelengths(canonicalHalfWavelength(distanceValue));
+  const gammaJunction = rotateTowardGenerator(gammaLoad, distance);
+  const junctionZ = reflectionToImpedance(gammaJunction);
+  const junctionY = impedanceToAdmittance(junctionZ);
+  const required = -targetJunctionSusceptance;
+  const stubLength = stubLengthForSusceptance(input.termination, required);
+  const actualStubB = stubNormalizedSusceptance(input.termination, stubLength);
+  const resultingY = add(junctionY, complex(0, actualStubB));
+  const resultingGamma = admittanceToReflection(resultingY);
+  const residualMagnitude = magnitude(resultingGamma);
+  const diagnostics: MatchDiagnostics = {
+    loadReflectionMagnitude: magnitude(gammaLoad),
+    resultReflectionMagnitude: residualMagnitude,
+    conductanceError: junctionY.re - 1,
+    susceptanceError: resultingY.im,
+  };
+  if (
+    !isFiniteComplex(junctionZ) ||
+    !isFiniteComplex(junctionY) ||
+    !Number.isFinite(actualStubB) ||
+    !Number.isFinite(residualMagnitude) ||
+    residualMagnitude > MAX_RESULT_REFLECTION
+  ) {
+    return null;
+  }
+  const wavelength = mediumWavelengthMeters(input.frequencyHz, input.velocityFactor);
+  return {
+    id: 'A',
+    feedlineDistanceWavelengths: distance,
+    feedlineDistanceDegrees: wavelengthElectricalDegrees(distance),
+    feedlineDistanceMeters: wavelengthDistanceMeters(distance, wavelength),
+    junctionNormalizedImpedance: junctionZ,
+    junctionImpedanceOhms: denormalizeImpedance(junctionZ, z0),
+    junctionNormalizedAdmittance: junctionY,
+    junctionAdmittanceSiemens: denormalizeAdmittance(junctionY, z0),
+    requiredStubNormalizedSusceptance: required,
+    requiredStubSusceptanceSiemens: siemens(required / z0),
+    stubLengthWavelengths: stubLength,
+    stubElectricalDegrees: wavelengthElectricalDegrees(stubLength),
+    stubLengthMeters: wavelengthDistanceMeters(stubLength, wavelength),
+    resultingNormalizedAdmittance: resultingY,
+    resultingReflectionCoefficient: resultingGamma,
+    residualVswr: reflectionToVswr(resultingGamma),
+    diagnostics,
+  };
+};
+
+export const solveShuntStub = (input: StubMatchInput): StubMatchResult => {
+  const issues = validateStubMatchInput(input);
+  if (issues.length) return { status: 'invalid-input', issues };
+  if (input.load.kind === 'open') return { status: 'no-passive-solution', reason: 'open-circuit' };
+  if (input.load.impedanceOhms.re < 0)
+    return { status: 'no-passive-solution', reason: 'active-load' };
+
+  const normalizedLoad = normalizeImpedance(
+    input.load.impedanceOhms,
+    input.characteristicImpedanceOhms,
+  );
+  const gammaLoad = impedanceToReflection(normalizedLoad);
+  const rho = magnitude(gammaLoad);
+  if (rho <= PRIMITIVE_ABSOLUTE_TOLERANCE) {
+    return {
+      status: 'matched',
+      diagnostics: {
+        loadReflectionMagnitude: rho,
+        resultReflectionMagnitude: rho,
+        conductanceError: 0,
+        susceptanceError: 0,
+      },
+    };
+  }
+  if (!Number.isFinite(rho) || rho >= 1 - PRIMITIVE_ABSOLUTE_TOLERANCE) {
+    return { status: 'no-passive-solution', reason: 'lossless-boundary' };
+  }
+
+  const bMagnitude = (2 * rho) / Math.sqrt(1 - rho * rho);
+  const candidates = [bMagnitude, -bMagnitude].map((b) => {
+    const targetGamma = admittanceToReflection(complex(1, b));
+    const clockwiseAngle = positiveAngle(phase(gammaLoad) - phase(targetGamma));
+    return makeSolution(input, gammaLoad, b, clockwiseAngle / (4 * Math.PI));
+  });
+  if (!candidates[0] || !candidates[1]) {
+    return {
+      status: 'numerical-failure',
+      diagnostics: {
+        loadReflectionMagnitude: rho,
+        resultReflectionMagnitude: Number.POSITIVE_INFINITY,
+        conductanceError: Number.NaN,
+        susceptanceError: Number.NaN,
+      },
+    };
+  }
+  const ordered = [candidates[0], candidates[1]].sort(
+    (a, b) => a.feedlineDistanceWavelengths - b.feedlineDistanceWavelengths,
+  );
+  const first = { ...ordered[0]!, id: 'A' as const };
+  const second = { ...ordered[1]!, id: 'B' as const };
+  return { status: 'solved', solutions: [first, second] };
+};

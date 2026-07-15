@@ -1,0 +1,38 @@
+@media print {
+  .instrument-bar nav,
+  .learn-panel,
+  .first-use,
+  .segmented,
+  .practical-warning button {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
+  .workspace {
+    display: block;
+    padding: 0;
+  }
+  .chart-panel,
+  .controls-panel,
+  .result-card,
+  .status-panel {
+    box-shadow: none;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+  .smith-chart {
+    width: 150mm;
+  }
+  .solutions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .practical-warning {
+    color: black;
+  }
+  footer {
+    padding: 1rem;
+  }
+}

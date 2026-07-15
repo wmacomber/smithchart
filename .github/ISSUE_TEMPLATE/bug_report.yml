@@ -1,0 +1,19 @@
+name: Bug report
+description: Report incorrect math, interaction, access, or rendering
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      {
+        label: Problem,
+        description: Include inputs,
+        expected result,
+        actual result,
+        browser,
+        and version.,
+      }
+    validations: { required: true }
+  - type: textarea
+    id: reproduction
+    attributes: { label: Reproduction URL or steps }
+    validations: { required: true }
