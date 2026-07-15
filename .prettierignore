@@ -1,0 +1,7 @@
+SMITH_CHART_SPA_PLAN.md
+CODEX_PLAN_MODE_PROMPTS.md
+bun.lock
+dist/
+coverage/
+playwright-report/
+test-results/

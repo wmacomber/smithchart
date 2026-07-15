@@ -1,0 +1,21 @@
+@media print {
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .app-header,
+  main,
+  footer {
+    width: 100%;
+  }
+
+  .foundation-panel {
+    border-color: black;
+    background: white;
+  }
+}
