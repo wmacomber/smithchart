@@ -10,7 +10,7 @@ Browser-only RF instrument for calculating and explaining lossless single shunt-
 - Impedance, admittance, reflection-coefficient entry and direct chart manipulation
 - Mouse, touch, keyboard, responsive themes, textual chart equivalent
 - Shareable URL, SVG export, print worksheet, offline reload
-- Pure independently verified TypeScript RF engine
+- Pure TypeScript RF engine checked against an alternate-formulation Python verifier
 
 ## Develop
 

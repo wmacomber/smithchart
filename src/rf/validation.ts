@@ -1,9 +1,11 @@
 import { isFiniteComplex } from './complex';
 import type { StubMatchInput } from './stubMatch';
 
+export type ValidationCode = 'non-finite' | 'positive' | 'range';
+
 export interface ValidationIssue {
   readonly field: 'load' | 'characteristicImpedance' | 'frequency' | 'velocityFactor';
-  readonly code: string;
+  readonly code: ValidationCode;
   readonly message: string;
 }
 

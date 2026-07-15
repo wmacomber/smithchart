@@ -4,11 +4,11 @@ Status: Accepted
 
 ## Decision
 
-Use conventions in `docs/conventions.md`; solve two `g=1` intersections analytically and reject failed residuals.
+Use conventions in `docs/conventions.md`; solve two `g=1` intersections analytically and reject failed residuals. Classify exact zero resistance before reflection arithmetic; positive-resistance numerical failures remain distinct from physical lossless loads.
 
 ## Consequences
 
-Quadrant and degeneracy tests gate changes.
+Quadrant, direct-transform, near-boundary, and degeneracy tests gate changes.
 
 ## Rejected
 

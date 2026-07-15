@@ -1,244 +1,1348 @@
-[
-  {
-    "id": "resistive-low",
-    "r": 25,
-    "x": 0,
-    "z0": 50,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "clockwise toward generator"
-    },
-    "equations": [
-      "RF-NORM-001",
-      "RF-GAMMA-001",
-      "RF-G1-001",
-      "RF-STUB-OPEN-001",
-      "RF-STUB-SHORT-001"
-    ],
-    "expected": {
-      "open": [
-        [0.097956638008, -0.707106781187, 0.097956638008],
-        [0.402043361992, 0.707106781187, 0.402043361992]
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "resistive-low",
+      "input": {
+        "resistanceOhms": 25,
+        "reactanceOhms": 0,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator",
+        "externalConfirmation": [
+          {
+            "title": "Electromagnetic Waves and Antennas, ch. 13.8 Single Stub Matching",
+            "provider": "S. J. Orfanidis, Rutgers University",
+            "locator": "https://eceweb1.rutgers.edu/~orfanidi/ewa/ewa-2up.pdf",
+            "scope": "single-stub method and two-solution convention"
+          },
+          {
+            "title": "RF Design Software Learning Kit, Smith chart matching example",
+            "provider": "Keysight Technologies",
+            "locator": "https://www.keysight.com/us/en/assets/7018-05596/application-notes/5992-2079.pdf",
+            "scope": "toward-generator chart direction and wavelength distance"
+          },
+          {
+            "title": "scikit-rf 2.0.1 independent network-model cross-check",
+            "provider": "scikit-rf project",
+            "locator": "https://scikit-rf.readthedocs.io/en/v1.11.0/examples/matching/Impedance%20Matching.html",
+            "scope": "project-specific junction admittance and final residual checked with DefinedGammaZ0 line and stub networks"
+          }
+        ]
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.097956638008, -0.707106781187, 0.347956638008],
-        [0.402043361992, 0.707106781187, 0.152043361992]
-      ]
-    }
-  },
-  {
-    "id": "resistive-high",
-    "r": 100,
-    "x": 0,
-    "z0": 50,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "clockwise toward generator"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.5, "im": 0.0 },
+        "loadReflectionCoefficient": { "re": -0.3333333333333333, "im": 0.0 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.09795663800764842,
+            "feedlineDistanceMeters": 1.3649293273648757,
+            "junctionNormalizedImpedance": { "re": 0.6666666666666532, "im": 0.471404520791015 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000304, "im": -0.7071067811865582 },
+            "requiredStubNormalizedSusceptance": 0.7071067811865582,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.0979566380076533,
+                "stubLengthMeters": 1.3649293273649437,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000304,
+                  "im": 3.1086244689504383e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.5210055437364417e-14,
+                  "im": -1.554312234475172e-15
+                },
+                "residualReflectionMagnitude": 1.528926659228421e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.3479566380076532,
+                "stubLengthMeters": 4.848433240745224,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000304,
+                  "im": 1.887379141862766e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.5210055437364414e-14,
+                  "im": -9.436895709313545e-16
+                },
+                "residualReflectionMagnitude": 1.523930235981895e-14
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.4020433619923516,
+            "feedlineDistanceMeters": 5.602078499395688,
+            "junctionNormalizedImpedance": { "re": 0.6666666666666534, "im": -0.4714045207910153 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000298, "im": 0.7071067811865581 },
+            "requiredStubNormalizedSusceptance": -0.7071067811865581,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.4020433619923467,
+                "stubLengthMeters": 5.60207849939562,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000298,
+                  "im": -3.552713678800501e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.487698852997688e-14,
+                  "im": 1.7763568394001976e-15
+                },
+                "residualReflectionMagnitude": 1.498266436058512e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.15204336199234667,
+                "stubLengthMeters": 2.1185745860153378,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000298,
+                  "im": -3.6637359812630166e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.487698852997688e-14,
+                  "im": 1.831867990631454e-15
+                },
+                "residualReflectionMagnitude": 1.4989347152433415e-14
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-ZFROMGAMMA-001", "RF-ADMITTANCE-001", "RF-LINE-001"],
-    "expected": {
-      "open": [
-        [0.152043361992, 0.707106781187, 0.402043361992],
-        [0.347956638008, -0.707106781187, 0.097956638008]
+    {
+      "id": "resistive-high",
+      "input": {
+        "resistanceOhms": 100,
+        "reactanceOhms": 0,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.152043361992, 0.707106781187, 0.152043361992],
-        [0.347956638008, -0.707106781187, 0.347956638008]
-      ]
-    }
-  },
-  {
-    "id": "capacitive-hf",
-    "r": 35,
-    "x": -22,
-    "z0": 50,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "negative X lower chart"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 2.0, "im": 0.0 },
+        "loadReflectionCoefficient": { "re": 0.3333333333333333, "im": 0.0 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.15204336199235158,
+            "feedlineDistanceMeters": 2.118574586015406,
+            "junctionNormalizedImpedance": { "re": 0.6666666666666532, "im": -0.471404520791015 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000304, "im": 0.7071067811865582 },
+            "requiredStubNormalizedSusceptance": -0.7071067811865582,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.4020433619923467,
+                "stubLengthMeters": 5.60207849939562,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000304,
+                  "im": -3.4416913763379853e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.5210055437364417e-14,
+                  "im": 1.7208456881689404e-15
+                },
+                "residualReflectionMagnitude": 1.5307093005864587e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.15204336199234667,
+                "stubLengthMeters": 2.1185745860153378,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000304,
+                  "im": -3.552713678800501e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.5210055437364417e-14,
+                  "im": 1.7763568394001966e-15
+                },
+                "residualReflectionMagnitude": 1.5313432992917777e-14
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.3479566380076484,
+            "feedlineDistanceMeters": 4.848433240745158,
+            "junctionNormalizedImpedance": { "re": 0.6666666666666532, "im": 0.471404520791015 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000304, "im": -0.7071067811865582 },
+            "requiredStubNormalizedSusceptance": 0.7071067811865582,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.0979566380076533,
+                "stubLengthMeters": 1.3649293273649437,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000304,
+                  "im": 3.1086244689504383e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.5210055437364417e-14,
+                  "im": -1.554312234475172e-15
+                },
+                "residualReflectionMagnitude": 1.528926659228421e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.3479566380076532,
+                "stubLengthMeters": 4.848433240745224,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000304,
+                  "im": 1.887379141862766e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.5210055437364414e-14,
+                  "im": -9.436895709313545e-16
+                },
+                "residualReflectionMagnitude": 1.523930235981895e-14
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-NORM-001", "RF-GAMMA-001", "RF-LINE-001", "RF-G1-001"],
-    "expected": {
-      "open": [
-        [0.19801429754, -0.636508332344, 0.090214146576],
-        [0.497052876135, 0.636508332344, 0.409785853424]
+    {
+      "id": "capacitive-hf",
+      "input": {
+        "resistanceOhms": 35,
+        "reactanceOhms": -22,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator",
+        "externalConfirmation": [
+          {
+            "title": "Electromagnetic Waves and Antennas, ch. 13.8 Single Stub Matching",
+            "provider": "S. J. Orfanidis, Rutgers University",
+            "locator": "https://eceweb1.rutgers.edu/~orfanidi/ewa/ewa-2up.pdf",
+            "scope": "single-stub method and two-solution convention"
+          },
+          {
+            "title": "RF Design Software Learning Kit, Smith chart matching example",
+            "provider": "Keysight Technologies",
+            "locator": "https://www.keysight.com/us/en/assets/7018-05596/application-notes/5992-2079.pdf",
+            "scope": "toward-generator chart direction and wavelength distance"
+          },
+          {
+            "title": "scikit-rf 2.0.1 independent network-model cross-check",
+            "provider": "scikit-rf project",
+            "locator": "https://scikit-rf.readthedocs.io/en/v1.11.0/examples/matching/Impedance%20Matching.html",
+            "scope": "project-specific junction admittance and final residual checked with DefinedGammaZ0 line and stub networks"
+          }
+        ]
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.19801429754, -0.636508332344, 0.340214146576],
-        [0.497052876135, 0.636508332344, 0.159785853424]
-      ]
-    }
-  },
-  {
-    "id": "inductive-hf",
-    "r": 35,
-    "x": 22,
-    "z0": 50,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "positive X upper chart"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.7, "im": -0.44 },
+        "loadReflectionCoefficient": { "re": -0.10260734206771308, "im": -0.2853807238292905 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.19801429754003763,
+            "feedlineDistanceMeters": 2.7591343215438746,
+            "junctionNormalizedImpedance": { "re": 0.7116714111427291, "im": 0.4529847830830845 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000233, "im": -0.6365083323436281 },
+            "requiredStubNormalizedSusceptance": 0.6365083323436281,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.09021414657589716,
+                "stubLengthMeters": 1.2570453305576004,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000233,
+                  "im": 1.5543122344752192e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.165734175856401e-14,
+                  "im": -7.771561172375915e-16
+                },
+                "residualReflectionMagnitude": 1.1683218242698373e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.34021414657589716,
+                "stubLengthMeters": 4.740549243937882,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000233,
+                  "im": 1.6653345369377348e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.165734175856401e-14,
+                  "im": -8.326672684688482e-16
+                },
+                "residualReflectionMagnitude": 1.1687042040479687e-14
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.4970528761348483,
+            "feedlineDistanceMeters": 6.925942556690674,
+            "junctionNormalizedImpedance": { "re": 0.7116714111427426, "im": -0.4529847830830991 },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999999969, "im": 0.6365083323436198 },
+            "requiredStubNormalizedSusceptance": -0.6365083323436198,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.4097858534241044,
+                "stubLengthMeters": 5.709962496202985,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999969,
+                  "im": 3.4416913763379853e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.5543122344752186e-15,
+                  "im": -1.7208456881689982e-15
+                },
+                "residualReflectionMagnitude": 2.3188782643185865e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.15978585342410367,
+                "stubLengthMeters": 2.226458582822693,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999969,
+                  "im": -2.55351295663786e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.55431223447522e-15,
+                  "im": 1.276756478318934e-15
+                },
+                "residualReflectionMagnitude": 2.0114655421281065e-15
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-NORM-001", "RF-GAMMA-001", "RF-LINE-001", "RF-G1-001"],
-    "expected": {
-      "open": [
-        [0.002947123865, -0.636508332344, 0.090214146576],
-        [0.30198570246, 0.636508332344, 0.409785853424]
+    {
+      "id": "inductive-hf",
+      "input": {
+        "resistanceOhms": 35,
+        "reactanceOhms": 22,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.002947123865, -0.636508332344, 0.340214146576],
-        [0.30198570246, 0.636508332344, 0.159785853424]
-      ]
-    }
-  },
-  {
-    "id": "quadrant-cap",
-    "r": 25,
-    "x": -25,
-    "z0": 50,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "quadrant boundary"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.7, "im": 0.44 },
+        "loadReflectionCoefficient": { "re": -0.10260734206771308, "im": 0.2853807238292905 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.002947123865151724,
+            "feedlineDistanceMeters": 0.04106527006988981,
+            "junctionNormalizedImpedance": { "re": 0.7116714111427423, "im": 0.45298478308309886 },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999999971, "im": -0.6365083323436198 },
+            "requiredStubNormalizedSusceptance": 0.6365083323436198,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.09021414657589627,
+                "stubLengthMeters": 1.2570453305575882,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999971,
+                  "im": 1.9984014443252818e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.4432899320127047e-15,
+                  "im": -9.992007221626436e-16
+                },
+                "residualReflectionMagnitude": 1.755416734288353e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.3402141465758963,
+                "stubLengthMeters": 4.7405492439378705,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999971,
+                  "im": 2.4424906541753444e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.443289932012704e-15,
+                  "im": -1.2212453270876757e-15
+                },
+                "residualReflectionMagnitude": 1.890641683868924e-15
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.30198570245996237,
+            "feedlineDistanceMeters": 4.207873505216689,
+            "junctionNormalizedImpedance": { "re": 0.7116714111427291, "im": -0.45298478308308454 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000233, "im": 0.6365083323436282 },
+            "requiredStubNormalizedSusceptance": -0.6365083323436282,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.4097858534241027,
+                "stubLengthMeters": 5.709962496202961,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000233,
+                  "im": -2.9976021664879227e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.1657341758564011e-14,
+                  "im": 1.4988010832439264e-15
+                },
+                "residualReflectionMagnitude": 1.1753298326984363e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.1597858534241028,
+                "stubLengthMeters": 2.226458582822681,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000233,
+                  "im": -1.9984014443252818e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.1657341758564011e-14,
+                  "im": 9.992007221626178e-16
+                },
+                "residualReflectionMagnitude": 1.1700086279986596e-14
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-STUB-OPEN-001", "RF-STUB-SHORT-001"],
-    "expected": {
-      "open": [
-        [0, 1, 0.375],
-        [0.176208191175, -1, 0.125]
+    {
+      "id": "quadrant-cap",
+      "input": {
+        "resistanceOhms": 25,
+        "reactanceOhms": -25,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator",
+        "externalConfirmation": [
+          {
+            "title": "Electromagnetic Waves and Antennas, ch. 13.8 Single Stub Matching",
+            "provider": "S. J. Orfanidis, Rutgers University",
+            "locator": "https://eceweb1.rutgers.edu/~orfanidi/ewa/ewa-2up.pdf",
+            "scope": "single-stub method and two-solution convention"
+          },
+          {
+            "title": "RF Design Software Learning Kit, Smith chart matching example",
+            "provider": "Keysight Technologies",
+            "locator": "https://www.keysight.com/us/en/assets/7018-05596/application-notes/5992-2079.pdf",
+            "scope": "toward-generator chart direction and wavelength distance"
+          },
+          {
+            "title": "scikit-rf 2.0.1 independent network-model cross-check",
+            "provider": "scikit-rf project",
+            "locator": "https://scikit-rf.readthedocs.io/en/v1.11.0/examples/matching/Impedance%20Matching.html",
+            "scope": "project-specific junction admittance and final residual checked with DefinedGammaZ0 line and stub networks"
+          }
+        ]
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0, 1, 0.125],
-        [0.176208191175, -1, 0.375]
-      ]
-    }
-  },
-  {
-    "id": "quadrant-ind",
-    "r": 25,
-    "x": 25,
-    "z0": 50,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "quadrant boundary"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.5, "im": -0.5 },
+        "loadReflectionCoefficient": { "re": -0.2, "im": -0.39999999999999997 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.0,
+            "feedlineDistanceMeters": 0.0,
+            "junctionNormalizedImpedance": { "re": 0.5, "im": -0.5 },
+            "junctionNormalizedAdmittance": { "re": 1.0, "im": 1.0 },
+            "requiredStubNormalizedSusceptance": -1.0,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.37500000000000044,
+                "stubLengthMeters": 5.225255870070429,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": 5.218048215738236e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -6.807006795442246e-30,
+                  "im": -2.609024107869118e-15
+                },
+                "residualReflectionMagnitude": 2.609024107869118e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.12500000000000042,
+                "stubLengthMeters": 1.7417519566901467,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": 5.218048215738236e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -6.807006795442246e-30,
+                  "im": -2.609024107869118e-15
+                },
+                "residualReflectionMagnitude": 2.609024107869118e-15
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.17620819117478348,
+            "feedlineDistanceMeters": 2.4552876941080766,
+            "junctionNormalizedImpedance": { "re": 0.5000000000000004, "im": 0.5000000000000009 },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999999982, "im": -0.9999999999999991 },
+            "requiredStubNormalizedSusceptance": 0.9999999999999991,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.12499999999999954,
+                "stubLengthMeters": 1.7417519566901345,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999982,
+                  "im": -4.884981308350689e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 8.8817841970012e-16,
+                  "im": 2.442490654175349e-15
+                },
+                "residualReflectionMagnitude": 2.598965467441791e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.37499999999999956,
+                "stubLengthMeters": 5.225255870070416,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999982,
+                  "im": -4.551914400963142e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 8.881784197001208e-16,
+                  "im": 2.275957200481575e-15
+                },
+                "residualReflectionMagnitude": 2.443121381275382e-15
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-STUB-OPEN-001", "RF-STUB-SHORT-001"],
-    "expected": {
-      "open": [
-        [0, -1, 0.125],
-        [0.323791808825, 1, 0.375]
+    {
+      "id": "quadrant-ind",
+      "input": {
+        "resistanceOhms": 25,
+        "reactanceOhms": 25,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator",
+        "externalConfirmation": [
+          {
+            "title": "Electromagnetic Waves and Antennas, ch. 13.8 Single Stub Matching",
+            "provider": "S. J. Orfanidis, Rutgers University",
+            "locator": "https://eceweb1.rutgers.edu/~orfanidi/ewa/ewa-2up.pdf",
+            "scope": "single-stub method and two-solution convention"
+          },
+          {
+            "title": "RF Design Software Learning Kit, Smith chart matching example",
+            "provider": "Keysight Technologies",
+            "locator": "https://www.keysight.com/us/en/assets/7018-05596/application-notes/5992-2079.pdf",
+            "scope": "toward-generator chart direction and wavelength distance"
+          },
+          {
+            "title": "scikit-rf 2.0.1 independent network-model cross-check",
+            "provider": "scikit-rf project",
+            "locator": "https://scikit-rf.readthedocs.io/en/v1.11.0/examples/matching/Impedance%20Matching.html",
+            "scope": "project-specific junction admittance and final residual checked with DefinedGammaZ0 line and stub networks"
+          }
+        ]
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0, -1, 0.375],
-        [0.323791808825, 1, 0.125]
-      ]
-    }
-  },
-  {
-    "id": "system-75",
-    "r": 42,
-    "x": -30,
-    "z0": 75,
-    "frequencyHz": 10000000,
-    "velocityFactor": 0.8,
-    "expectedWavelengthMeters": 23.98339664,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "75 ohm normalization"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.5, "im": 0.5 },
+        "loadReflectionCoefficient": { "re": -0.2, "im": 0.39999999999999997 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.0,
+            "feedlineDistanceMeters": 0.0,
+            "junctionNormalizedImpedance": { "re": 0.5, "im": 0.5 },
+            "junctionNormalizedAdmittance": { "re": 1.0, "im": -1.0 },
+            "requiredStubNormalizedSusceptance": 1.0,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.12500000000000042,
+                "stubLengthMeters": 1.7417519566901467,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": 5.10702591327572e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -6.520428419717426e-30,
+                  "im": -2.55351295663786e-15
+                },
+                "residualReflectionMagnitude": 2.55351295663786e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.37500000000000044,
+                "stubLengthMeters": 5.225255870070429,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": 5.10702591327572e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -6.520428419717426e-30,
+                  "im": -2.55351295663786e-15
+                },
+                "residualReflectionMagnitude": 2.55351295663786e-15
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.3237918088252165,
+            "feedlineDistanceMeters": 4.511720132652488,
+            "junctionNormalizedImpedance": { "re": 0.5000000000000004, "im": -0.5000000000000009 },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999999982, "im": 0.9999999999999991 },
+            "requiredStubNormalizedSusceptance": -0.9999999999999991,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.37500000000000044,
+                "stubLengthMeters": 5.225255870070429,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999982,
+                  "im": 4.3298697960381105e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 8.881784197001213e-16,
+                  "im": -2.1649348980190592e-15
+                },
+                "residualReflectionMagnitude": 2.3400435931584265e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.12500000000000042,
+                "stubLengthMeters": 1.7417519566901467,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999982,
+                  "im": 4.3298697960381105e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 8.881784197001213e-16,
+                  "im": -2.1649348980190592e-15
+                },
+                "residualReflectionMagnitude": 2.3400435931584265e-15
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-NORM-001", "RF-WAVELENGTH-001"],
-    "expected": {
-      "open": [
-        [0.173592424205, -0.794624799153, 0.106865346669],
-        [0.48378280801, 0.794624799153, 0.393134653331]
+    {
+      "id": "system-75",
+      "input": {
+        "resistanceOhms": 42,
+        "reactanceOhms": -30,
+        "characteristicImpedanceOhms": 75,
+        "frequencyHz": 10000000,
+        "velocityFactor": 0.8
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.173592424205, -0.794624799153, 0.356865346669],
-        [0.48378280801, 0.794624799153, 0.143134653331]
-      ]
-    }
-  },
-  {
-    "id": "vhf",
-    "r": 28,
-    "x": 18,
-    "z0": 50,
-    "frequencyHz": 146000000,
-    "velocityFactor": 0.78,
-    "expectedWavelengthMeters": 1.60163094,
-    "tolerance": 1e-9,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "VHF example"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.56, "im": -0.4 },
+        "loadReflectionCoefficient": { "re": -0.20296113510178895, "im": -0.30845157310302285 },
+        "wavelengthMeters": 23.983396640000002,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.1735924242047524,
+            "feedlineDistanceMeters": 4.163335963401714,
+            "junctionNormalizedImpedance": { "re": 0.6129597197898297, "im": 0.48707299422671985 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000342, "im": -0.794624799152778 },
+            "requiredStubNormalizedSusceptance": 0.794624799152778,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.1068653466694225,
+                "stubLengthMeters": 2.562993996243863,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000342,
+                  "im": 2.220446049250313e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.7097434579227117e-14,
+                  "im": -1.1102230246251187e-15
+                },
+                "residualReflectionMagnitude": 1.713344286345739e-14
+              },
+              "short": {
+                "stubLengthWavelengths": 0.35686534666942243,
+                "stubLengthMeters": 8.558843156243862,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000342,
+                  "im": 1.5543122344752192e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.7097434579227117e-14,
+                  "im": -7.77156117237583e-16
+                },
+                "residualReflectionMagnitude": 1.711508810440399e-14
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.48378280800964646,
+            "feedlineDistanceMeters": 11.602754972108322,
+            "junctionNormalizedImpedance": { "re": 0.6129597197898379, "im": -0.48707299422673156 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000124, "im": 0.7946247991527692 },
+            "requiredStubNormalizedSusceptance": -0.7946247991527692,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.39313465333057823,
+                "stubLengthMeters": 9.428704323756156,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000124,
+                  "im": -3.4416913763379853e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -6.217248937900841e-15,
+                  "im": 1.7208456881689713e-15
+                },
+                "residualReflectionMagnitude": 6.451007226652198e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.14313465333057834,
+                "stubLengthMeters": 3.432855163756158,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000124,
+                  "im": -2.4424906541753444e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -6.2172489379008395e-15,
+                  "im": 1.2212453270876572e-15
+                },
+                "residualReflectionMagnitude": 6.336057489067043e-15
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-WAVELENGTH-001", "RF-LINE-001"],
-    "expected": {
-      "open": [
-        [0.023495438825, -0.759699188589, 0.103399742871],
-        [0.331271162135, 0.759699188589, 0.396600257129]
+    {
+      "id": "vhf",
+      "input": {
+        "resistanceOhms": 28,
+        "reactanceOhms": 18,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 146000000,
+        "velocityFactor": 0.78
+      },
+      "tolerance": { "absolute": 1e-9, "relative": 1e-9 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.023495438825, -0.759699188589, 0.353399742871],
-        [0.331271162135, 0.759699188589, 0.146600257129]
-      ]
-    }
-  },
-  {
-    "id": "near-open",
-    "r": 5000,
-    "x": 800,
-    "z0": 50,
-    "tolerance": 1e-8,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "finite near-open"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.56, "im": 0.36 },
+        "loadReflectionCoefficient": { "re": -0.21722846441947563, "im": 0.28089887640449435 },
+        "wavelengthMeters": 1.6016309400000002,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.023495438824607362,
+            "feedlineDistanceMeters": 0.03763102177036839,
+            "junctionNormalizedImpedance": { "re": 0.634057971014494, "im": 0.4816933260981294 },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999999973, "im": -0.7596991885890463 },
+            "requiredStubNormalizedSusceptance": 0.7596991885890463,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.10339974287115657,
+                "stubLengthMeters": 0.1656082273704888,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999973,
+                  "im": 1.887379141862766e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.3322676295501886e-15,
+                  "im": -9.436895709313854e-16
+                },
+                "residualReflectionMagnitude": 1.6326319374041233e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.35339974287115666,
+                "stubLengthMeters": 0.566015962370489,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999973,
+                  "im": 2.55351295663786e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.332267629550188e-15,
+                  "im": -1.2767564783189336e-15
+                },
+                "residualReflectionMagnitude": 1.8452761694870075e-15
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.3312711621353479,
+            "feedlineDistanceMeters": 0.5305741428057298,
+            "junctionNormalizedImpedance": { "re": 0.6340579710144858, "im": -0.4816933260981185 },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000000173, "im": 0.7596991885890542 },
+            "requiredStubNormalizedSusceptance": -0.7596991885890542,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.3966002571288432,
+                "stubLengthMeters": 0.6352072426295109,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000173,
+                  "im": 3.6637359812630166e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -8.659739592076148e-15,
+                  "im": -1.8318679906314767e-15
+                },
+                "residualReflectionMagnitude": 8.851374477315451e-15
+              },
+              "short": {
+                "stubLengthWavelengths": 0.14660025712884245,
+                "stubLengthMeters": 0.23479950762950966,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000000173,
+                  "im": -3.885780586188048e-15
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -8.659739592076148e-15,
+                  "im": 1.94289029309399e-15
+                },
+                "residualReflectionMagnitude": 8.875016196806067e-15
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-GAMMA-001", "RF-G1-001"],
-    "expected": {
-      "open": [
-        [0.234583509243, 10.028459502835, 0.265818038485],
-        [0.265913120855, -10.028459502835, 0.234181961515]
+    {
+      "id": "near-open",
+      "input": {
+        "resistanceOhms": 5000,
+        "reactanceOhms": 800,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-8, "relative": 1e-8 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.234583509243, 10.028459502835, 0.015818038485],
-        [0.265913120855, -10.028459502835, 0.484181961515]
-      ]
-    }
-  },
-  {
-    "id": "near-short",
-    "r": 0.5,
-    "x": 0.2,
-    "z0": 50,
-    "tolerance": 1e-8,
-    "source": {
-      "title": "Independent Python analytical calculation",
-      "provider": "project verifier",
-      "convention": "finite near-short"
+      "expected": {
+        "normalizedLoadImpedance": { "re": 100.0, "im": 16.0 },
+        "loadReflectionCoefficient": { "re": 0.980682796213063, "im": 0.003060151094960316 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.23458350924257942,
+            "feedlineDistanceMeters": 3.2686902898440198,
+            "junctionNormalizedImpedance": {
+              "re": 0.009845426799251772,
+              "im": -0.09873446394443275
+            },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999997823, "im": 10.028459502833826 },
+            "requiredStubNormalizedSusceptance": -10.028459502833826,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.26581803848478675,
+                "stubLengthMeters": 3.7039127092353,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999997823,
+                  "im": -1.3145040611561853e-13
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.0885736756450412e-13,
+                  "im": 6.572520305782358e-14
+                },
+                "residualReflectionMagnitude": 1.2716024846651448e-13
+              },
+              "short": {
+                "stubLengthWavelengths": 0.015818038484786794,
+                "stubLengthMeters": 0.2204087958550188,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999997823,
+                  "im": -1.0302869668521453e-13
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 1.0885736756450579e-13,
+                  "im": 5.151434834261848e-14
+                },
+                "residualReflectionMagnitude": 1.2043111955901827e-13
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.26591312085482244,
+            "feedlineDistanceMeters": 3.7052375884677513,
+            "junctionNormalizedImpedance": {
+              "re": 0.009845426799251761,
+              "im": 0.09873446394442953
+            },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999998457, "im": -10.028459502834146 },
+            "requiredStubNormalizedSusceptance": 10.028459502834146,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.23418196151521328,
+                "stubLengthMeters": 3.263095117525264,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999998457,
+                  "im": -1.794120407794253e-13
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 7.716050021144628e-14,
+                  "im": 8.970602038972648e-14
+                },
+                "residualReflectionMagnitude": 1.1832545325094947e-13
+              },
+              "short": {
+                "stubLengthWavelengths": 0.484181961515214,
+                "stubLengthMeters": 6.746599030905555,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999998457,
+                  "im": 2.6645352591003757e-13
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 7.716050021143659e-14,
+                  "im": -1.3322676295503933e-13
+                },
+                "residualReflectionMagnitude": 1.5395815392618004e-13
+              }
+            }
+          }
+        ]
+      }
     },
-    "equations": ["RF-ADMITTANCE-001", "RF-ZFROMGAMMA-001"],
-    "expected": {
-      "open": [
-        [0.015225952597, -9.900080807751, 0.233978216289],
-        [0.483500687316, 9.900080807751, 0.266021783711]
+    {
+      "id": "near-short",
+      "input": {
+        "resistanceOhms": 0.5,
+        "reactanceOhms": 0.2,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-8, "relative": 1e-8 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
       ],
-      "short": [
-        [0.015225952597, -9.900080807751, 0.483978216289],
-        [0.483500687316, 9.900080807751, 0.016021783711]
-      ]
+      "expected": {
+        "normalizedLoadImpedance": { "re": 0.01, "im": 0.004 },
+        "loadReflectionCoefficient": { "re": -0.9801669614043892, "im": 0.007842245391700552 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.015225952597450743,
+            "feedlineDistanceMeters": 0.2121586618326493,
+            "junctionNormalizedImpedance": { "re": 0.01009982668697406, "im": 0.0999891003453278 },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999999122, "im": -9.90008080775058 },
+            "requiredStubNormalizedSusceptance": 9.90008080775058,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.23397821628912793,
+                "stubLengthMeters": 3.260256128355661,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999122,
+                  "im": -1.9895196601282805e-13
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 4.3909320623916977e-14,
+                  "im": 9.947598300642277e-14
+                },
+                "residualReflectionMagnitude": 1.0873591693984124e-13
+              },
+              "short": {
+                "stubLengthWavelengths": 0.48397821628912857,
+                "stubLengthMeters": 6.743760041735952,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999999122,
+                  "im": 1.900701818158268e-13
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 4.390932062391784e-14,
+                  "im": -9.503509090792176e-14
+                },
+                "residualReflectionMagnitude": 1.0468857120780171e-13
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.48350068731575035,
+            "feedlineDistanceMeters": 6.73710614554589,
+            "junctionNormalizedImpedance": {
+              "re": 0.010099826686974015,
+              "im": -0.09998910034530632
+            },
+            "junctionNormalizedAdmittance": { "re": 1.000000000000333, "im": 9.900080807752666 },
+            "requiredStubNormalizedSusceptance": -9.900080807752666,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.26602178371086854,
+                "stubLengthMeters": 3.706751698404854,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.000000000000333,
+                  "im": 7.283063041541027e-14
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.6653345369374708e-13,
+                  "im": -3.6415315207693005e-14
+                },
+                "residualReflectionMagnitude": 1.7046837355017804e-13
+              },
+              "short": {
+                "stubLengthWavelengths": 0.016021783710868483,
+                "stubLengthMeters": 0.22324778502457127,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.000000000000333,
+                  "im": 4.973799150320701e-14
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -1.6653345369374634e-13,
+                  "im": -2.4868995751595227e-14
+                },
+                "residualReflectionMagnitude": 1.683801002163261e-13
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "near-match-passive",
+      "input": {
+        "resistanceOhms": 50.000000001,
+        "reactanceOhms": 0,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-8, "relative": 1e-8 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
+      ],
+      "expected": {
+        "normalizedLoadImpedance": { "re": 1.00000000002, "im": 0.0 },
+        "loadReflectionCoefficient": { "re": 1.000000082730371e-11, "im": 0.0 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.125,
+            "feedlineDistanceMeters": 1.741751956690141,
+            "junctionNormalizedImpedance": { "re": 1.0, "im": -1.9999994747959795e-11 },
+            "junctionNormalizedAdmittance": { "re": 1.0, "im": 1.9999994747959795e-11 },
+            "requiredStubNormalizedSusceptance": -1.9999994747959795e-11,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.49999999999681716,
+                "stubLengthMeters": 6.967007826716214,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": 1.6469853118612822e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -6.781401543717013e-31,
+                  "im": -8.234926559306411e-16
+                },
+                "residualReflectionMagnitude": 8.234926559306411e-16
+              },
+              "short": {
+                "stubLengthWavelengths": 0.24999999999681718,
+                "stubLengthMeters": 3.4835039133359325,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": 1.7082176518183595e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -7.295018864959575e-31,
+                  "im": -8.541088259091797e-16
+                },
+                "residualReflectionMagnitude": 8.541088259091797e-16
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.375,
+            "feedlineDistanceMeters": 5.225255870070423,
+            "junctionNormalizedImpedance": { "re": 1.0, "im": 1.99999947479598e-11 },
+            "junctionNormalizedAdmittance": { "re": 1.0, "im": -1.99999947479598e-11 },
+            "requiredStubNormalizedSusceptance": 1.99999947479598e-11,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 3.182787366995398e-12,
+                "stubLengthMeters": 4.434900899354317e-11,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": -1.9519277775124602e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -9.525055121561831e-31,
+                  "im": 9.759638887562301e-16
+                },
+                "residualReflectionMagnitude": 9.759638887562301e-16
+              },
+              "short": {
+                "stubLengthWavelengths": 0.25000000000318284,
+                "stubLengthMeters": 3.4835039134246317,
+                "resultingNormalizedAdmittance": { "re": 1.0, "im": -1.608637726810714e-15 },
+                "resultingReflectionCoefficient": {
+                  "re": -6.469288340296852e-31,
+                  "im": 8.04318863405357e-16
+                },
+                "residualReflectionMagnitude": 8.04318863405357e-16
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "large-reactance",
+      "input": {
+        "resistanceOhms": 50,
+        "reactanceOhms": 10000,
+        "characteristicImpedanceOhms": 50,
+        "frequencyHz": 14200000,
+        "velocityFactor": 0.66
+      },
+      "tolerance": { "absolute": 1e-8, "relative": 1e-8 },
+      "source": {
+        "title": "Independent direct transmission-line bounded-root calculation",
+        "provider": "project standard-library verifier",
+        "method": "sine/cosine line transform plus bisection; no production analytical intersections or atan2 stub inverse",
+        "locator": "scripts/verify-reference-cases.py",
+        "convention": "e^(+jωt), clockwise toward generator"
+      },
+      "equations": [
+        "RF-NORM-001",
+        "RF-GAMMA-001",
+        "RF-ZFROMGAMMA-001",
+        "RF-ADMITTANCE-001",
+        "RF-LINE-001",
+        "RF-G1-001",
+        "RF-STUB-OPEN-001",
+        "RF-STUB-SHORT-001",
+        "RF-WAVELENGTH-001"
+      ],
+      "expected": {
+        "normalizedLoadImpedance": { "re": 1.0, "im": 200.0 },
+        "loadReflectionCoefficient": { "re": 0.9999000099990001, "im": 0.00999900009999 },
+        "wavelengthMeters": 13.934015653521127,
+        "solutions": [
+          {
+            "feedlineDistanceWavelengths": 0.25000000000000355,
+            "feedlineDistanceMeters": 3.483503913380331,
+            "junctionNormalizedImpedance": {
+              "re": 2.4999375015624598e-5,
+              "im": -0.0049998750031025555
+            },
+            "junctionNormalizedAdmittance": { "re": 1.0000000000089462, "im": 200.00000000089463 },
+            "requiredStubNormalizedSusceptance": -200.00000000089463,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.25079576808409915,
+                "stubLengthMeters": 3.494592158320692,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000089462,
+                  "im": -7.332801033044234e-11
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -4.473088567538997e-12,
+                  "im": 3.6664005164893167e-11
+                },
+                "residualReflectionMagnitude": 3.693586057024204e-11
+              },
+              "short": {
+                "stubLengthWavelengths": 0.0007957680840990907,
+                "stubLengthMeters": 0.011088244940409248,
+                "resultingNormalizedAdmittance": {
+                  "re": 1.0000000000089462,
+                  "im": -8.404299478570465e-11
+                },
+                "resultingReflectionCoefficient": {
+                  "re": -4.4730885679605535e-12,
+                  "im": 4.20214973924764e-11
+                },
+                "residualReflectionMagnitude": 4.225890160005014e-11
+              }
+            }
+          },
+          {
+            "feedlineDistanceWavelengths": 0.25159149638245637,
+            "feedlineDistanceMeters": 3.505679848885951,
+            "junctionNormalizedImpedance": {
+              "re": 2.4999375015624612e-5,
+              "im": 0.00499987500313891
+            },
+            "junctionNormalizedAdmittance": { "re": 0.9999999999944048, "im": -199.9999999994405 },
+            "requiredStubNormalizedSusceptance": 199.9999999994405,
+            "terminations": {
+              "open": {
+                "stubLengthWavelengths": 0.24920423191589472,
+                "stubLengthMeters": 3.4724156684397864,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999944048,
+                  "im": -2.2879476091475226e-11
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 2.7975954884786592e-12,
+                  "im": 1.143973804580162e-11
+                },
+                "residualReflectionMagnitude": 1.1776847926067366e-11
+              },
+              "short": {
+                "stubLengthWavelengths": 0.4992042319158946,
+                "stubLengthMeters": 6.9559195818200665,
+                "resultingNormalizedAdmittance": {
+                  "re": 0.9999999999944048,
+                  "im": -6.087930159992538e-11
+                },
+                "resultingReflectionCoefficient": {
+                  "re": 2.7975954876829547e-12,
+                  "im": 3.043965080013301e-11
+                },
+                "residualReflectionMagnitude": 3.056793878145437e-11
+              }
+            }
+          }
+        ]
+      }
     }
-  }
-]
+  ]
+}

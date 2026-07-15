@@ -19,4 +19,17 @@ describe('complex arithmetic', () => {
   });
   it('converts polar values', () =>
     expect(magnitude(fromPolar(2, Math.PI / 3))).toBeCloseTo(2, 12));
+  it('divides without overflowing finite scale factors', () => {
+    const large = divide(complex(1e308, 1e308), complex(1e308, -1e308));
+    expect(large.re).toBeCloseTo(0, 12);
+    expect(large.im).toBeCloseTo(1, 12);
+    const small = divide(complex(1e-300, -1e-300), complex(1e-300, 1e-300));
+    expect(small.re).toBeCloseTo(0, 12);
+    expect(small.im).toBeCloseTo(-1, 12);
+  });
+  it('returns non-finite components for division by exact zero', () => {
+    const result = divide(complex(1, 2), complex(0, 0));
+    expect(Number.isFinite(result.re)).toBe(false);
+    expect(Number.isFinite(result.im)).toBe(false);
+  });
 });

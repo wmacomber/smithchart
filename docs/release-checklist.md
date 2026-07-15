@@ -4,7 +4,7 @@
 
 - [x] Required v1 workflows and nine presets complete.
 - [x] Degenerate/active states accurate.
-- [x] Equation coverage and ten reference cases pass.
+- [x] Nine named equation assertions, twelve solved reference cases, both stub terminations, and tagged edge cases pass through alternate-formulation verification.
 - [x] Every returned solution meets residual bound.
 
 ## Access and platform

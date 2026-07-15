@@ -43,6 +43,24 @@ describe('shunt solver', () => {
     expect(
       solveShuntStub({ ...input, load: { kind: 'finite', impedanceOhms: complex(-1, 2) } }),
     ).toMatchObject({ status: 'no-passive-solution', reason: 'active-load' });
+    expect(
+      solveShuntStub({ ...input, load: { kind: 'finite', impedanceOhms: complex(0, 50) } }),
+    ).toMatchObject({ status: 'no-passive-solution', reason: 'lossless-boundary' });
+  });
+  it('does not misclassify positive resistance near the lossless boundary', () => {
+    const result = solveShuntStub({
+      ...input,
+      load: { kind: 'finite', impedanceOhms: complex(1e-10, 0) },
+    });
+    expect(result.status).not.toBe('no-passive-solution');
+  });
+  it('solves a large finite reactance or reports numerical failure', () => {
+    const result = solveShuntStub({
+      ...input,
+      load: { kind: 'finite', impedanceOhms: complex(50, 10_000) },
+    });
+    expect(['solved', 'numerical-failure']).toContain(result.status);
+    expect(result.status).not.toBe('no-passive-solution');
   });
   it('inverts both stub equations across quadrants', () => {
     for (const termination of ['open', 'short'] as const)

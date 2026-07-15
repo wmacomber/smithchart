@@ -1,9 +1,88 @@
-[
-  { "id": "matched", "load": { "kind": "finite", "r": 50, "x": 0 }, "expected": "matched" },
-  { "id": "open", "load": { "kind": "open" }, "expected": "open-circuit" },
-  { "id": "short", "load": { "kind": "finite", "r": 0, "x": 0 }, "expected": "lossless-boundary" },
-  { "id": "active", "load": { "kind": "finite", "r": -10, "x": 5 }, "expected": "active-load" },
-  { "id": "invalid-z0", "z0": 0, "expected": "invalid-input" },
-  { "id": "invalid-frequency", "frequency": 0, "expected": "invalid-input" },
-  { "id": "invalid-vf", "vf": 1.1, "expected": "invalid-input" }
-]
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "matched",
+      "input": { "load": { "kind": "finite", "resistanceOhms": 50, "reactanceOhms": 0 } },
+      "expectedStatus": "matched"
+    },
+    {
+      "id": "open",
+      "input": { "load": { "kind": "open" } },
+      "expectedStatus": "open-circuit"
+    },
+    {
+      "id": "short",
+      "input": { "load": { "kind": "finite", "resistanceOhms": 0, "reactanceOhms": 0 } },
+      "expectedStatus": "lossless-boundary"
+    },
+    {
+      "id": "pure-reactance",
+      "input": { "load": { "kind": "finite", "resistanceOhms": 0, "reactanceOhms": 50 } },
+      "expectedStatus": "lossless-boundary"
+    },
+    {
+      "id": "active",
+      "input": { "load": { "kind": "finite", "resistanceOhms": -10, "reactanceOhms": 5 } },
+      "expectedStatus": "active-load"
+    },
+    {
+      "id": "non-finite-load",
+      "input": { "load": { "kind": "finite", "resistanceOhms": "NaN", "reactanceOhms": 0 } },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "invalid-z0-zero",
+      "input": {
+        "load": { "kind": "finite", "resistanceOhms": 35, "reactanceOhms": -22 },
+        "characteristicImpedanceOhms": 0
+      },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "invalid-z0-infinite",
+      "input": {
+        "load": { "kind": "finite", "resistanceOhms": 35, "reactanceOhms": -22 },
+        "characteristicImpedanceOhms": "Infinity"
+      },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "invalid-frequency",
+      "input": {
+        "load": { "kind": "finite", "resistanceOhms": 35, "reactanceOhms": -22 },
+        "frequencyHz": 0
+      },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "invalid-frequency-nan",
+      "input": {
+        "load": { "kind": "finite", "resistanceOhms": 35, "reactanceOhms": -22 },
+        "frequencyHz": "NaN"
+      },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "invalid-vf-zero",
+      "input": {
+        "load": { "kind": "finite", "resistanceOhms": 35, "reactanceOhms": -22 },
+        "velocityFactor": 0
+      },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "invalid-vf-high",
+      "input": {
+        "load": { "kind": "finite", "resistanceOhms": 35, "reactanceOhms": -22 },
+        "velocityFactor": 1.1
+      },
+      "expectedStatus": "invalid-input"
+    },
+    {
+      "id": "passive-near-boundary",
+      "input": { "load": { "kind": "finite", "resistanceOhms": 1e-10, "reactanceOhms": 0 } },
+      "expectedStatus": "solved"
+    }
+  ]
+}

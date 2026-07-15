@@ -4,7 +4,7 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 
 ## Phase gates
 
-- [x] Phase 0 — conventions, equations, ADRs, references, scope documented.
+- [x] Phase 0 — corrective review complete: conventions, derivations, contracts, alternate-formulation references, edge policy, and scope documented.
 - [x] Phase 1 — frozen install, lint, types, unit, build, Chromium smoke pass.
 - [x] Phase 2 — RF boundary, references, properties, residuals pass.
 - [x] Phase 3 — canonical chart geometry and responsive rendering pass.
@@ -29,6 +29,14 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - PR/commit:
 - Command/result:
 - Notes/deviation:
+
+## Phase 0 corrective evidence — 2026-07-15
+
+- Owner: Codex corrective mathematical review; commit pending user workflow.
+- Commands/results: `python3 scripts/check-doc-links.py`, `bun run format:check`, `bun run lint`, `bun run typecheck`, `bun run check:rf-boundary`, `bun run verify:references`, `bun run test:rf`, `bun run test:chart`, `bun run ci`, and `git diff --check` pass.
+- Reference evidence: 12 solved cases, both terminations, 9 named equation assertions, tagged edge cases, full intermediate/residual fixtures, direct-transform bounded-root Python verifier.
+- External evidence: Orfanidis single-stub treatment, Keysight toward-generator Smith-chart examples, NIST traveling-wave framework, and scikit-rf real-reference reflection convention. scikit-rf 2.0.1 independently cross-checked four required project cases to `3.6e-16` maximum junction-admittance difference and below `1.6e-14` residual.
+- Deviation: no external source publishes every project-specific fixture decimal. Published sources and four external tool checks confirm conventions/method; alternate formulation verifies remaining numeric fixtures. No claim equates project-authored Python with external authority.
 
 ## Release readiness
 

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Decision
 
-Matched gets dedicated state. Unit-circle loads get no-finite-passive-solution. Negative resistance is displayed and diagnosed but not solved.
+Effective match gets dedicated state. Exact finite zero-resistance/unit-circle loads get no-finite-passive-solution. Negative resistance is displayed and diagnosed but not solved. Positive resistance remains passive; computation failure uses `numerical-failure`.
 
 ## Consequences
 

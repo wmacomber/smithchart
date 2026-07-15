@@ -4,8 +4,11 @@ import { add, complex, isFiniteComplex, magnitude, phase } from './complex';
 import {
   MAX_RESULT_REFLECTION,
   PRIMITIVE_ABSOLUTE_TOLERANCE,
+  SOLVER_ABSOLUTE_TOLERANCE,
+  SOLVER_RELATIVE_TOLERANCE,
   canonicalHalfWavelength,
   positiveAngle,
+  withinTolerance,
 } from './conventions';
 import { denormalizeImpedance, normalizeImpedance } from './impedance';
 import type { Degrees, Hertz, Meters, Ohms, Siemens, Wavelengths } from './quantities';
@@ -103,7 +106,6 @@ export const stubLengthForSusceptance = (
 const makeSolution = (
   input: StubMatchInput,
   gammaLoad: Complex,
-  targetJunctionSusceptance: number,
   distanceValue: number,
 ): StubMatchSolution | null => {
   const z0 = input.characteristicImpedanceOhms;
@@ -111,7 +113,7 @@ const makeSolution = (
   const gammaJunction = rotateTowardGenerator(gammaLoad, distance);
   const junctionZ = reflectionToImpedance(gammaJunction);
   const junctionY = impedanceToAdmittance(junctionZ);
-  const required = -targetJunctionSusceptance;
+  const required = -junctionY.im;
   const stubLength = stubLengthForSusceptance(input.termination, required);
   const actualStubB = stubNormalizedSusceptance(input.termination, stubLength);
   const resultingY = add(junctionY, complex(0, actualStubB));
@@ -128,6 +130,8 @@ const makeSolution = (
     !isFiniteComplex(junctionY) ||
     !Number.isFinite(actualStubB) ||
     !Number.isFinite(residualMagnitude) ||
+    !withinTolerance(junctionY.re, 1, SOLVER_ABSOLUTE_TOLERANCE, SOLVER_RELATIVE_TOLERANCE) ||
+    !withinTolerance(resultingY.im, 0, SOLVER_ABSOLUTE_TOLERANCE, SOLVER_RELATIVE_TOLERANCE) ||
     residualMagnitude > MAX_RESULT_REFLECTION
   ) {
     return null;
@@ -160,6 +164,8 @@ export const solveShuntStub = (input: StubMatchInput): StubMatchResult => {
   if (input.load.kind === 'open') return { status: 'no-passive-solution', reason: 'open-circuit' };
   if (input.load.impedanceOhms.re < 0)
     return { status: 'no-passive-solution', reason: 'active-load' };
+  if (input.load.impedanceOhms.re === 0)
+    return { status: 'no-passive-solution', reason: 'lossless-boundary' };
 
   const normalizedLoad = normalizeImpedance(
     input.load.impedanceOhms,
@@ -178,15 +184,23 @@ export const solveShuntStub = (input: StubMatchInput): StubMatchResult => {
       },
     };
   }
-  if (!Number.isFinite(rho) || rho >= 1 - PRIMITIVE_ABSOLUTE_TOLERANCE) {
-    return { status: 'no-passive-solution', reason: 'lossless-boundary' };
+  if (!Number.isFinite(rho) || rho >= 1) {
+    return {
+      status: 'numerical-failure',
+      diagnostics: {
+        loadReflectionMagnitude: rho,
+        resultReflectionMagnitude: Number.POSITIVE_INFINITY,
+        conductanceError: Number.NaN,
+        susceptanceError: Number.NaN,
+      },
+    };
   }
 
-  const bMagnitude = (2 * rho) / Math.sqrt(1 - rho * rho);
+  const bMagnitude = (2 * rho) / Math.sqrt((1 - rho) * (1 + rho));
   const candidates = [bMagnitude, -bMagnitude].map((b) => {
     const targetGamma = admittanceToReflection(complex(1, b));
     const clockwiseAngle = positiveAngle(phase(gammaLoad) - phase(targetGamma));
-    return makeSolution(input, gammaLoad, b, clockwiseAngle / (4 * Math.PI));
+    return makeSolution(input, gammaLoad, clockwiseAngle / (4 * Math.PI));
   });
   if (!candidates[0] || !candidates[1]) {
     return {

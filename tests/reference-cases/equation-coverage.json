@@ -1,13 +1,16 @@
 {
-  "equations": [
-    "RF-NORM-001",
-    "RF-GAMMA-001",
-    "RF-ZFROMGAMMA-001",
-    "RF-ADMITTANCE-001",
-    "RF-LINE-001",
-    "RF-G1-001",
-    "RF-STUB-OPEN-001",
-    "RF-STUB-SHORT-001",
-    "RF-WAVELENGTH-001"
-  ]
+  "equations": {
+    "RF-NORM-001": { "assertion": "normalized impedance and admittance", "minimumCases": 2 },
+    "RF-GAMMA-001": { "assertion": "impedance reflection conversion", "minimumCases": 2 },
+    "RF-ZFROMGAMMA-001": { "assertion": "reflection-to-impedance round trip", "minimumCases": 2 },
+    "RF-ADMITTANCE-001": { "assertion": "admittance reciprocal", "minimumCases": 2 },
+    "RF-LINE-001": {
+      "assertion": "direct line transform versus reflection rotation",
+      "minimumCases": 2
+    },
+    "RF-G1-001": { "assertion": "two unit-conductance intersections", "minimumCases": 2 },
+    "RF-STUB-OPEN-001": { "assertion": "open-stub direct admittance", "minimumCases": 2 },
+    "RF-STUB-SHORT-001": { "assertion": "short-stub direct admittance", "minimumCases": 2 },
+    "RF-WAVELENGTH-001": { "assertion": "medium wavelength", "minimumCases": 2 }
+  }
 }
