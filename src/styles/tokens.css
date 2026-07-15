@@ -19,6 +19,25 @@
   --radius: 12px;
   --space: 1rem;
   --motion: 320ms;
+  --chart-background: var(--panel-strong);
+  --chart-boundary: var(--grid-strong);
+  --chart-axis: var(--grid-strong);
+  --chart-grid-minor: var(--grid);
+  --chart-grid-major: var(--grid-strong);
+  --chart-impedance: var(--chart-grid-minor);
+  --chart-admittance: var(--admittance);
+  --chart-label: var(--muted);
+  --chart-solution-a: var(--accent);
+  --chart-solution-b: var(--accent-2);
+  --chart-load: var(--load);
+  --chart-focus: var(--focus);
+  --chart-grid-minor-width: 0.65;
+  --chart-grid-major-width: 1.15;
+  --chart-axis-width: 1.25;
+  --chart-boundary-width: 2;
+  --chart-secondary-opacity: 0.42;
+  --chart-secondary-dash: 3 3;
+  --chart-label-size: 11px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {

@@ -5,12 +5,45 @@ export interface ChartPoint {
   readonly y: number;
 }
 
+export type ChartDisplayMode = 'impedance' | 'admittance' | 'both';
+export type GridDensity = 'compact' | 'regular' | 'dense';
+export type GridDensityMode = 'auto' | GridDensity;
+
+export interface ChartCircle {
+  readonly cx: number;
+  readonly cy: number;
+  readonly r: number;
+}
+
+export interface ChartArc {
+  readonly center: ChartPoint;
+  readonly radius: number;
+  readonly start: ChartPoint;
+  readonly end: ChartPoint;
+  readonly largeArc: 0;
+  readonly sweep: 0 | 1;
+  readonly path: string;
+}
+
+export interface PositionedLabel {
+  readonly key: string;
+  readonly text: string;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly kind: 'special' | 'primary' | 'secondary';
+}
+
 export interface SmithChartProps {
-  readonly loadReflection: Complex;
+  readonly displayMode: ChartDisplayMode;
+  readonly density?: GridDensityMode;
+  readonly accessibleTitle?: string;
+  readonly accessibleDescription?: string;
+  readonly loadReflection?: Complex;
   readonly solutions?: readonly [StubMatchSolution, StubMatchSolution];
   readonly selectedSolution?: 'A' | 'B';
-  readonly displayMode: 'impedance' | 'admittance' | 'both';
-  readonly onLoadPreview: (reflection: Complex) => void;
-  readonly onLoadCommit: (reflection: Complex) => void;
-  readonly onLoadCancel: () => void;
+  readonly onLoadPreview?: (reflection: Complex) => void;
+  readonly onLoadCommit?: (reflection: Complex) => void;
+  readonly onLoadCancel?: () => void;
 }

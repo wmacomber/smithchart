@@ -1,13 +1,15 @@
 import type { Complex, StubMatchSolution } from '../rf';
 import { magnitude } from '../rf';
-import { arcPath, CHART_CENTER, CHART_RADIUS, reflectionToChartPoint } from './chartGeometry';
+import { arcPath, reflectionToChartPoint } from './chartGeometry';
 
 export function TransformationPath({
   load,
   solution,
+  markerId,
 }: {
   readonly load: Complex;
   readonly solution: StubMatchSolution;
+  readonly markerId: string;
 }) {
   const target = solution.resultingReflectionCoefficient;
   const junctionGamma = {
@@ -26,15 +28,9 @@ export function TransformationPath({
   void target;
   return (
     <g className={`solution-path solution-${solution.id.toLowerCase()}`}>
-      <circle
-        cx={CHART_CENTER}
-        cy={CHART_CENTER}
-        r={magnitude(load) * CHART_RADIUS}
-        className="swr-circle"
-      />
       <path
         d={arcPath(load, junctionGamma, magnitude(load), true)}
-        markerEnd="url(#direction-arrow)"
+        markerEnd={`url(#${markerId})`}
       />
       <circle cx={junction.x} cy={junction.y} r="6" className="junction-marker" />
     </g>

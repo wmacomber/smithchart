@@ -1,7 +1,12 @@
 import type { KeyboardEvent, PointerEvent } from 'react';
 import type { Complex } from '../rf';
 import { complex } from '../rf';
-import { CHART_SIZE, chartPointToReflection, reflectionToChartPoint } from './chartGeometry';
+import {
+  CHART_SIZE,
+  chartPointToReflection,
+  clampReflectionToUnitDisk,
+  reflectionToChartPoint,
+} from './chartGeometry';
 
 interface Props {
   readonly reflection: Complex;
@@ -14,10 +19,12 @@ export function LoadMarker({ reflection, onPreview, onCommit, onCancel }: Props)
   const point = reflectionToChartPoint(reflection);
   const fromPointer = (event: PointerEvent<SVGCircleElement>) => {
     const rect = event.currentTarget.ownerSVGElement!.getBoundingClientRect();
-    return chartPointToReflection({
-      x: ((event.clientX - rect.left) / rect.width) * CHART_SIZE,
-      y: ((event.clientY - rect.top) / rect.height) * CHART_SIZE,
-    });
+    return clampReflectionToUnitDisk(
+      chartPointToReflection({
+        x: ((event.clientX - rect.left) / rect.width) * CHART_SIZE,
+        y: ((event.clientY - rect.top) / rect.height) * CHART_SIZE,
+      }),
+    );
   };
   const handleKey = (event: KeyboardEvent<SVGCircleElement>) => {
     if (event.key === 'Escape') return onCancel();

@@ -50,35 +50,60 @@
 .smith-chart {
   display: block;
   width: min(100%, 740px);
+  aspect-ratio: 1;
   max-height: 70vh;
   margin: auto;
   touch-action: none;
 }
+.smith-background {
+  fill: var(--chart-background);
+}
 .smith-boundary {
-  fill: var(--panel-strong);
-  stroke: var(--grid-strong);
-  stroke-width: 2;
+  fill: none;
+  stroke: var(--chart-boundary);
+  stroke-width: var(--chart-boundary-width);
+  vector-effect: non-scaling-stroke;
 }
 .smith-grid {
   fill: none;
-  stroke: var(--grid);
-  stroke-width: 0.7;
+  stroke: var(--chart-impedance);
+}
+.smith-grid-line {
+  fill: none;
+  stroke: inherit;
   vector-effect: non-scaling-stroke;
 }
-.admittance-grid {
-  stroke: var(--admittance);
+.grid-minor {
+  stroke-width: var(--chart-grid-minor-width);
 }
-.secondary {
-  opacity: 0.42;
+.grid-major {
+  stroke: var(--chart-grid-major);
+  stroke-width: var(--chart-grid-major-width);
+}
+.grid-axis {
+  stroke: var(--chart-axis);
+  stroke-width: var(--chart-axis-width);
+}
+.admittance-grid {
+  stroke: var(--chart-admittance);
+}
+.secondary-grid {
+  opacity: var(--chart-secondary-opacity);
+  stroke-dasharray: var(--chart-secondary-dash);
 }
 .smith-labels {
-  fill: var(--muted);
-  font-size: 11px;
+  fill: var(--chart-label);
+  font-size: var(--chart-label-size);
   text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+.label-secondary {
+  opacity: var(--chart-secondary-opacity);
 }
 .load-marker {
-  fill: var(--load);
-  stroke: var(--panel-strong);
+  fill: var(--chart-load);
+  stroke: var(--chart-background);
   stroke-width: 3;
   pointer-events: none;
   filter: drop-shadow(0 2px 3px rgb(0 0 0/0.3));
@@ -94,27 +119,27 @@
 .solution-path,
 .stub-path {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--chart-solution-a);
   stroke-width: 3;
   vector-effect: non-scaling-stroke;
 }
 .solution-b {
-  stroke: var(--accent-2);
+  stroke: var(--chart-solution-b);
 }
 .swr-circle {
   stroke-dasharray: 4 5;
   opacity: 0.55;
 }
 .junction-marker {
-  fill: var(--accent);
-  stroke: var(--panel-strong);
+  fill: var(--chart-solution-a);
+  stroke: var(--chart-background);
   stroke-width: 2;
 }
 .stub-path {
   stroke-dasharray: 7 4;
 }
-#direction-arrow path {
-  fill: var(--accent);
+.direction-arrow {
+  fill: var(--chart-solution-a);
 }
 .controls-panel {
   padding: 1rem;

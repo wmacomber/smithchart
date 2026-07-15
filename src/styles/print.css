@@ -9,6 +9,8 @@
   body {
     background: white;
     color: black;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
   .workspace {
     display: block;
@@ -24,6 +26,25 @@
   }
   .smith-chart {
     width: 150mm;
+    max-height: 150mm;
+    break-inside: avoid;
+    --chart-background: white;
+    --chart-boundary: black;
+    --chart-axis: black;
+    --chart-grid-minor: #888;
+    --chart-grid-major: #444;
+    --chart-impedance: #555;
+    --chart-admittance: #222;
+    --chart-label: black;
+    --chart-solution-a: black;
+    --chart-solution-b: #444;
+    --chart-load: black;
+    --chart-secondary-opacity: 0.72;
+    --chart-secondary-dash: 4 3;
+  }
+  [data-layer='interaction-overlay'],
+  .marker-hit-target {
+    display: none;
   }
   .solutions {
     display: grid;
