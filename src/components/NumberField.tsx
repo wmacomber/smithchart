@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { parseNumericInput, resetNumericInput, type NumericInputIssue } from './numericInput';
+import { HelpTip } from './Tooltip';
 
 interface Props {
   readonly label: string;
@@ -9,6 +10,9 @@ interface Props {
   readonly isAllowed?: (value: number) => boolean;
   readonly errorMessage?: string;
   readonly className?: string;
+  readonly helpText?: string;
+  readonly fieldId?: string;
+  readonly onDraftValidityChange?: (fieldId: string, invalid: boolean) => void;
 }
 
 const DEFAULT_MESSAGES: Record<Exclude<NumericInputIssue, null>, string> = {
@@ -26,6 +30,9 @@ export function NumberField({
   isAllowed = () => true,
   errorMessage,
   className,
+  helpText,
+  fieldId,
+  onDraftValidityChange,
 }: Props) {
   const [draft, setDraft] = useState(() => resetNumericInput(value));
   const reactId = useId();
@@ -49,9 +56,17 @@ export function NumberField({
       : DEFAULT_MESSAGES[draft.issue]
     : null;
 
+  useEffect(() => {
+    if (!fieldId || !onDraftValidityChange) return;
+    onDraftValidityChange(fieldId, Boolean(message));
+    return () => onDraftValidityChange(fieldId, false);
+  }, [fieldId, message, onDraftValidityChange]);
+
   return (
-    <label className={`number-field${className ? ` ${className}` : ''}`} htmlFor={id}>
-      <span>{label}</span>
+    <div className={`number-field${className ? ` ${className}` : ''}`}>
+      <span>
+        <label htmlFor={id}>{label}</label> {helpText && <HelpTip label={label} text={helpText} />}
+      </span>
       <span className="field-control">
         <input
           id={id}
@@ -84,6 +99,6 @@ export function NumberField({
           {message}
         </span>
       )}
-    </label>
+    </div>
   );
 }

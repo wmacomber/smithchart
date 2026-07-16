@@ -1,6 +1,6 @@
 import { serializeChart } from './serializeChart';
 import { Download } from 'lucide-react';
-export function ExportSvgButton() {
+export function ExportSvgButton({ disabled = false }: { readonly disabled?: boolean }) {
   const save = () => {
     const svg = document.querySelector<SVGSVGElement>('[data-export-chart]');
     if (!svg) return;
@@ -12,7 +12,7 @@ export function ExportSvgButton() {
     URL.revokeObjectURL(url);
   };
   return (
-    <button type="button" onClick={save} className="icon-button">
+    <button type="button" disabled={disabled} onClick={save} className="icon-button">
       <Download size={16} aria-hidden="true" /> Export SVG
     </button>
   );

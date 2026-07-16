@@ -56,12 +56,17 @@ describe('workspaceReducer', () => {
       example: {
         id: 'test',
         name: 'Test',
-        load: { kind: 'open' },
-        z0: 75,
-        frequencyHz: 1e9,
-        velocityFactor: 0.8,
-        termination: 'open',
-        note: '',
+        category: 'systems',
+        description: 'Test preset',
+        learningGoal: 'Test atomic application.',
+        calculation: {
+          load: { kind: 'open' },
+          characteristicImpedanceOhms: 75,
+          frequencyHz: 1e9,
+          velocityFactor: 0.8,
+          termination: 'open',
+        },
+        expectedStatus: 'solved',
       },
     });
     expect(next.calculation).toEqual({

@@ -63,6 +63,7 @@ Vitest covers:
 - Mathematical-to-SVG coordinate inversion.
 - Client-to-viewBox pointer mapping across offsets, responsive scaling, and letterboxing.
 - Reflection constraints, pointer snapping, keyboard steps, and load/reflection interaction mapping.
+- Matching renderer geometry: common SWR radius, clockwise feed sweep, solver junction endpoints, constant-conductance stub samples, exact center endpoint, label separation, and solver-owned annotation values.
 
 ## Property tests
 
@@ -86,6 +87,10 @@ Generators exclude declared singular domains explicitly. Deterministic cases cov
 - `bun run check:rf-boundary`: RF core remains DOM, React, SVG, URL, storage, and dependency free.
 - Playwright covers application workflows but is not mathematical evidence.
 - Playwright interaction coverage proves preview/commit/cancel transactions, pointer capture, live field and tooltip synchronization, keyboard fine/coarse movement, snapping, focus, and mobile target sizing across the configured browser matrix.
+- Matching Playwright coverage proves A/B selection, comparison without URL drift, reduced-motion final state, textual equivalents, complete clipboard text, responsive card order, SVG export, print, and visual states for both terminations.
+- Education unit coverage proves nine unique presets, expected matched/solved classifications, two-solution residuals, termination/system coverage, URL round trips, preference v4 migration, and complete typed Learn targets.
+- Education Playwright coverage proves first-use persistence and restart, four-step navigation, explicit example application, every topic-to-chart mapping, URL-invariant highlights, accessible contextual help, stale-result gating, matched/active states, mobile action disclosure, clipboard fallback, and axe checks.
+- Visual baselines cover first-use mobile layout, desktop Learn, chart education highlighting, open advanced results, matched state, and the existing chart/matching matrix.
 
 ## Commands
 

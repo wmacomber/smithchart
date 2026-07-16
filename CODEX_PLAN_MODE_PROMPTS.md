@@ -290,8 +290,6 @@ Do not modify files. Return the state-and-input plan for review.
 ```
 
 ---
-CONTINUE NEXT
----
 
 # Prompt 6: Interactive chart manipulation
 

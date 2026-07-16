@@ -1,6 +1,12 @@
 import { Share2 } from 'lucide-react';
 
-export function ShareButton({ url }: { readonly url: string }) {
+export function ShareButton({
+  url,
+  disabled = false,
+}: {
+  readonly url: string;
+  readonly disabled?: boolean;
+}) {
   const share = async () => {
     try {
       await navigator.clipboard.writeText(url);
@@ -9,7 +15,7 @@ export function ShareButton({ url }: { readonly url: string }) {
     }
   };
   return (
-    <button type="button" onClick={() => void share()} className="icon-button">
+    <button type="button" disabled={disabled} onClick={() => void share()} className="icon-button">
       <Share2 size={16} aria-hidden="true" /> Share
     </button>
   );

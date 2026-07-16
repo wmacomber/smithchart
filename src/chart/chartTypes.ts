@@ -1,4 +1,5 @@
 import type { Complex, StubMatchSolution } from '../rf';
+import type { ChartEducationTarget } from '../features/tutorial/topics';
 
 export interface ChartPoint {
   readonly x: number;
@@ -6,7 +7,10 @@ export interface ChartPoint {
 }
 
 export type ChartDisplayMode = 'impedance' | 'admittance' | 'both';
+export type SolutionView = 'selected' | 'overlay';
+export type ChartLengthUnit = 'm' | 'cm' | 'ft' | 'in';
 export type GridDensity = 'compact' | 'regular' | 'dense';
+export type ChartDisplayDensity = GridDensity;
 export type GridDensityMode = 'auto' | GridDensity;
 
 export interface ChartCircle {
@@ -49,9 +53,16 @@ export interface SmithChartProps {
   readonly loadReflection?: Complex;
   readonly solutions?: readonly [StubMatchSolution, StubMatchSolution];
   readonly selectedSolution?: 'A' | 'B';
+  readonly solutionView?: SolutionView;
+  readonly termination?: 'open' | 'short';
+  readonly lengthUnit?: ChartLengthUnit;
+  readonly matchStatus?:
+    'solved' | 'matched' | 'no-passive-solution' | 'invalid-input' | 'numerical-failure';
   readonly snapLoadPointer?: boolean;
   readonly loadReadout?: LoadMarkerReadout;
   readonly onLoadPreview?: (reflection: Complex) => void;
   readonly onLoadCommit?: (reflection: Complex) => void;
   readonly onLoadCancel?: () => void;
+  readonly educationTarget?: ChartEducationTarget | null;
+  readonly onEducationDismiss?: () => void;
 }

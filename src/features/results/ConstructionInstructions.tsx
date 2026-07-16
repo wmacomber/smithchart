@@ -1,51 +1,69 @@
-import type { LengthUnit } from '../../app/workspaceTypes';
-import { metersToFeet, type StubMatchSolution, type StubTermination } from '../../rf';
+import type { CalculationState, LengthUnit } from '../../app/workspaceTypes';
+import type { StubMatchSolution, StubTermination } from '../../rf';
 import { Copy } from 'lucide-react';
-import { useState } from 'react';
-import { formatLength } from './lengthFormatting';
+import { useEffect, useRef, useState } from 'react';
+import { matchingResultText } from './matchingResultText';
 export function ConstructionInstructions({
   solution,
   termination,
   lengthUnit,
+  selected,
+  calculation,
+  disabled = false,
 }: {
   readonly solution: StubMatchSolution;
   readonly termination: StubTermination;
   readonly lengthUnit: LengthUnit;
+  readonly selected: boolean;
+  readonly calculation: CalculationState;
+  readonly disabled?: boolean;
 }) {
   const [fallback, setFallback] = useState(false);
-  const feedlineLength =
-    lengthUnit === 'm'
-      ? `${formatLength(solution.feedlineDistanceMeters, lengthUnit)} (${metersToFeet(
-          solution.feedlineDistanceMeters,
-        ).toFixed(2)} ft)`
-      : formatLength(solution.feedlineDistanceMeters, lengthUnit);
-  const stubLength = formatLength(solution.stubLengthMeters, lengthUnit);
-  const instruction = `Move ${feedlineLength} toward the transmitter from the load and connect a ${termination}-circuited shunt stub ${stubLength} long.`;
+  const fallbackRef = useRef<HTMLTextAreaElement>(null);
+  const text = matchingResultText(solution, termination, lengthUnit, calculation);
+  const [copyStatus, setCopyStatus] = useState('');
+  useEffect(() => {
+    if (fallback) fallbackRef.current?.select();
+  }, [fallback]);
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(instruction);
+      await navigator.clipboard.writeText(text.complete);
       setFallback(false);
+      setCopyStatus(`Solution ${solution.id} instructions copied.`);
     } catch {
       setFallback(true);
+      setCopyStatus('Clipboard unavailable. Copy from the text field.');
     }
   };
   return (
     <div>
       <p className="construction">
-        Move <strong>{feedlineLength}</strong> toward the transmitter from the load and connect a{' '}
+        Move <strong>{text.feedlineLength}</strong> toward the transmitter from the load and connect
+        a{' '}
         <strong>
-          {termination}-circuited shunt stub {stubLength}
+          {termination}-circuited shunt stub {text.stubLength}
         </strong>{' '}
         long.
       </p>
-      <button type="button" className="icon-button copy-instruction" onClick={() => void copy()}>
-        <Copy size={16} aria-hidden="true" /> Copy instructions
-      </button>
+      {selected && (
+        <button
+          type="button"
+          className="icon-button copy-instruction"
+          disabled={disabled}
+          onClick={() => void copy()}
+        >
+          <Copy size={16} aria-hidden="true" /> Copy construction instructions
+        </button>
+      )}
+      <span className="sr-only" aria-live="polite">
+        {copyStatus}
+      </span>
       {fallback && (
         <textarea
+          ref={fallbackRef}
           className="copy-fallback"
           readOnly
-          value={instruction}
+          value={text.complete}
           aria-label="Copyable construction instructions"
         />
       )}

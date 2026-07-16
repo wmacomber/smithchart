@@ -75,3 +75,100 @@ test('@visual monochrome print chart', async ({ page }) => {
     animations: 'disabled',
   });
 });
+
+test('@visual both-solution matching overlay', async ({ page }) => {
+  await page.getByRole('checkbox', { name: 'Compare both paths on chart' }).check();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('matching-overlay-light.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual solution B selected', async ({ page }) => {
+  await page
+    .getByRole('article')
+    .filter({ hasText: 'Solution B' })
+    .getByRole('button', { name: 'Select' })
+    .click();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('matching-solution-b.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual open-stub comparison', async ({ page }) => {
+  await page.getByRole('radio', { name: 'Open' }).check();
+  await page.getByRole('checkbox', { name: 'Compare both paths on chart' }).check();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('matching-open-overlay.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual already-matched state', async ({ page }) => {
+  await page.goto('/?v=1&r=50&x=0&z0=50&f=14.2MHz&vf=.66&stub=shunt-short&solution=A');
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot(
+    'matching-already-matched.png',
+    {
+      animations: 'disabled',
+    },
+  );
+});
+
+test('@visual reduced-motion final frame', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.reload();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('matching-reduced-motion.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual mobile matching cards', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page).toHaveScreenshot('matching-mobile.png', {
+    fullPage: true,
+    animations: 'disabled',
+  });
+});
+
+test('@visual forced-color matching identities', async ({ page }) => {
+  await page.emulateMedia({ forcedColors: 'active' });
+  await page.getByRole('checkbox', { name: 'Compare both paths on chart' }).check();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('matching-forced-colors.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual desktop Learn dialog', async ({ page }) => {
+  await page.getByRole('button', { name: 'Learn' }).click();
+  await expect(page.getByRole('dialog', { name: 'Learn the match' })).toHaveScreenshot(
+    'education-learn-desktop.png',
+    { animations: 'disabled' },
+  );
+});
+
+test('@visual mobile onboarding prompt', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.first-use-prompt')).toHaveScreenshot(
+    'education-onboarding-mobile.png',
+    { animations: 'disabled' },
+  );
+});
+
+test('@visual chart education highlight', async ({ page }) => {
+  await page.getByRole('button', { name: 'Learn' }).click();
+  const topic = page
+    .locator('.learn-category > details')
+    .filter({ hasText: 'Moving toward the generator' });
+  await topic.getByText('Moving toward the generator', { exact: true }).click();
+  await topic.getByRole('button', { name: 'Show this on the chart' }).click();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot(
+    'education-chart-highlight.png',
+    { animations: 'disabled' },
+  );
+});
+
+test('@visual responsive advanced panel', async ({ page }) => {
+  await page.getByText('Advanced RF details', { exact: true }).click();
+  await expect(page.locator('.advanced-results')).toHaveScreenshot(
+    'education-advanced-results.png',
+    { animations: 'disabled' },
+  );
+});

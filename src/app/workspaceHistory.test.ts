@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { historyReducer } from './workspaceHistory';
 import { DEFAULT_WORKSPACE } from './workspaceReducer';
 import type { WorkspaceHistory } from './workspaceTypes';
+import { EXAMPLES } from '../features/examples/examples';
 
 const initial = (): WorkspaceHistory => ({ past: [], present: DEFAULT_WORKSPACE, future: [] });
 
@@ -20,6 +21,7 @@ describe('historyReducer', () => {
   it('excludes preferences and preview while preserving history stacks', () => {
     let history = historyReducer(initial(), { type: 'commit-frequency', value: 2e6 });
     history = historyReducer(history, { type: 'set-length-unit', value: 'ft' });
+    history = historyReducer(history, { type: 'set-solution-view', value: 'overlay' });
     history = historyReducer(history, {
       type: 'preview-load',
       load: { kind: 'finite', impedanceOhms: { re: 5, im: 1 } },
@@ -27,6 +29,7 @@ describe('historyReducer', () => {
     expect(history.past).toHaveLength(1);
     history = historyReducer(history, { type: 'undo' });
     expect(history.present.preferences.lengthUnit).toBe('ft');
+    expect(history.present.preferences.solutionView).toBe('overlay');
     expect(history.present.previewLoad).toBeNull();
   });
 
@@ -66,5 +69,20 @@ describe('historyReducer', () => {
     expect(history.past).toHaveLength(1);
     history = historyReducer(history, { type: 'undo' });
     expect(history.present.calculation.load).toEqual(startingLoad);
+  });
+
+  it('applies an example as one undoable calculation while preserving preferences', () => {
+    let history = historyReducer(initial(), { type: 'set-theme', value: 'dark' });
+    history = historyReducer(history, {
+      type: 'apply-example',
+      example: EXAMPLES.find((item) => item.id === '75-ohm')!,
+    });
+    expect(history.past).toHaveLength(1);
+    expect(history.present.calculation.characteristicImpedanceOhms).toBe(75);
+    expect(history.present.calculation.selectedSolution).toBe('A');
+    expect(history.present.preferences.theme).toBe('dark');
+    history = historyReducer(history, { type: 'undo' });
+    expect(history.present.calculation).toEqual(DEFAULT_WORKSPACE.calculation);
+    expect(history.present.preferences.theme).toBe('dark');
   });
 });

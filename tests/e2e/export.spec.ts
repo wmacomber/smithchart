@@ -11,6 +11,8 @@ test('@export downloads standalone SVG', async ({ page }) => {
   const content = Buffer.concat(chunks).toString('utf8');
   expect(content).not.toContain('foreignObject');
   expect(content).not.toContain('marker-hit-target');
+  expect(content).toContain('.solution-selection-halo{fill:none');
+  expect(content).toContain('solution-b');
 });
 
 test('print worksheet retains input parameters', async ({ page }) => {

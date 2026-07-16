@@ -31,3 +31,14 @@ test('@a11y load marker exposes stable name, instructions, and live value', asyn
   await marker.press('Escape');
   await expect(page.locator('[id^="load-marker-status-"]')).toContainText('canceled');
 });
+
+test('@a11y matching view has textual and non-color equivalents', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#chart-description')).toContainText('Solution A');
+  await expect(page.locator('#chart-description')).toContainText('Solution B');
+  await expect(page.getByLabel('Matching path legend')).toContainText('Toward generator');
+  await expect(page.getByText('Stop at the selected g = 1 stub junction.')).toBeVisible();
+  await expect(
+    page.getByRole('checkbox', { name: 'Compare both paths on chart' }),
+  ).not.toBeChecked();
+});

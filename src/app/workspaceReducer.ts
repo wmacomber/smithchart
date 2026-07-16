@@ -22,6 +22,8 @@ export const DEFAULT_PREFERENCES: WorkspacePreferences = {
   theme: 'system',
   animationEnabled: true,
   gridSnapping: false,
+  solutionView: 'selected',
+  firstUseDismissed: false,
 };
 
 export const DEFAULT_WORKSPACE: WorkspaceState = {
@@ -83,11 +85,7 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
       return updateCalculation(state, { ...state.calculation, selectedSolution: action.value });
     case 'apply-example':
       return updateCalculation(state, {
-        load: action.example.load,
-        characteristicImpedanceOhms: action.example.z0,
-        frequencyHz: action.example.frequencyHz,
-        velocityFactor: action.example.velocityFactor,
-        termination: action.example.termination,
+        ...action.example.calculation,
         selectedSolution: 'A',
       });
     case 'reset-calculation':
@@ -114,6 +112,10 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
       };
     case 'set-grid-snapping':
       return { ...state, preferences: { ...state.preferences, gridSnapping: action.value } };
+    case 'set-solution-view':
+      return { ...state, preferences: { ...state.preferences, solutionView: action.value } };
+    case 'set-first-use-dismissed':
+      return { ...state, preferences: { ...state.preferences, firstUseDismissed: action.value } };
     case 'preview-load':
       return isValidLoad(action.load) ? { ...state, previewLoad: action.load } : state;
     case 'cancel-preview':

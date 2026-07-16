@@ -3,6 +3,7 @@ import { NumberField } from '../../components/NumberField';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import type { LoadRepresentation } from '../../app/workspaceTypes';
 import { loadToRepresentation, representationToLoad } from './loadRepresentations';
+import { HelpTip } from '../../components/Tooltip';
 
 export function LoadInputPanel({
   load,
@@ -10,12 +11,14 @@ export function LoadInputPanel({
   representation,
   onRepresentationChange,
   onLoadCommit,
+  onDraftValidityChange,
 }: {
   readonly load: Load;
   readonly characteristicImpedanceOhms: number;
   readonly representation: LoadRepresentation;
   readonly onRepresentationChange: (value: LoadRepresentation) => void;
   readonly onLoadCommit: (load: Load) => void;
+  readonly onDraftValidityChange?: (fieldId: string, invalid: boolean) => void;
 }) {
   const values = loadToRepresentation(load, characteristicImpedanceOhms, representation);
   const labels =
@@ -38,7 +41,13 @@ export function LoadInputPanel({
 
   return (
     <section>
-      <h2>Load</h2>
+      <div className="section-heading">
+        <h2>Load</h2>
+        <HelpTip
+          label="load entry representations"
+          text="Z is impedance, Y is admittance, and Γ is reflection coefficient. All three stay synchronized."
+        />
+      </div>
       <SegmentedControl
         label="Entry representation"
         value={representation}
@@ -74,6 +83,15 @@ export function LoadInputPanel({
             isAllowed={representation === 'reflection' ? (value) => value >= 0 : undefined}
             errorMessage="Enter a magnitude of zero or greater."
             onCommit={(value) => commitPart('first', value)}
+            helpText={
+              representation === 'impedance'
+                ? 'Resistance is the real part of load impedance.'
+                : representation === 'admittance'
+                  ? 'Conductance is the real part of load admittance.'
+                  : 'Reflection magnitude is distance from chart center.'
+            }
+            fieldId={`load-${representation}-first`}
+            onDraftValidityChange={onDraftValidityChange}
           />
           <NumberField
             key={`${representation}-second`}
@@ -81,6 +99,15 @@ export function LoadInputPanel({
             value={values.second}
             unit={representation === 'reflection' ? '°' : labels[2]}
             onCommit={(value) => commitPart('second', value)}
+            helpText={
+              representation === 'impedance'
+                ? 'Reactance is positive for inductive and negative for capacitive loads.'
+                : representation === 'admittance'
+                  ? 'Susceptance is the imaginary part of admittance.'
+                  : 'Reflection phase is the angle around the chart in degrees.'
+            }
+            fieldId={`load-${representation}-second`}
+            onDraftValidityChange={onDraftValidityChange}
           />
         </>
       ) : (

@@ -1286,6 +1286,8 @@ Exit criteria:
 - Selected solution is reflected in URL
 - Reduced-motion mode works
 
+Implemented visualization contract: selected mode retains both labeled `g=1` intersections while emphasizing one complete construction; comparison mode overlays both directed feed and stub paths without changing URL selection. A/B identity uses color, dash, marker shape, labels, cards, and text. Numerical residual remains distinct from ideal center construction marker.
+
 ## Phase 6: Education and UX refinement
 
 Deliver:
@@ -1306,6 +1308,8 @@ Exit criteria:
 - A knowledgeable user can reach advanced details quickly
 - Mobile workflow is complete
 - No major accessibility failures remain
+
+Implemented education contract: first-use guidance is explicitly dismissible and restartable; Learn content and examples are typed data; contextual help is keyboard/touch accessible; topic actions add temporary labeled chart overlays without URL or preference drift; invalid drafts label the retained calculation as stale; and physical construction remains primary while one responsive advanced panel exposes solver detail for either solution.
 
 ## Phase 7: Export, accessibility, and hardening
 

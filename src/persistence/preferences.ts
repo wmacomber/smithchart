@@ -4,11 +4,14 @@ import type {
   LengthUnit,
   LoadRepresentation,
   Theme,
+  SolutionView,
   WorkspacePreferences,
 } from '../app/workspaceTypes';
 
 const V1_KEY = 'smith-match-preferences-v1';
 const V2_KEY = 'smith-match-preferences-v2';
+const V3_KEY = 'smith-match-preferences-v3';
+const V4_KEY = 'smith-match-preferences-v4';
 
 type JsonRecord = Record<string, unknown>;
 type MutablePartialPreferences = {
@@ -39,6 +42,10 @@ function validatePreferences(value: unknown): Partial<WorkspacePreferences> {
   if (oneOf<Theme>(value.theme, ['system', 'light', 'dark'])) result.theme = value.theme;
   if (typeof value.animationEnabled === 'boolean') result.animationEnabled = value.animationEnabled;
   if (typeof value.gridSnapping === 'boolean') result.gridSnapping = value.gridSnapping;
+  if (oneOf<SolutionView>(value.solutionView, ['selected', 'overlay']))
+    result.solutionView = value.solutionView;
+  if (typeof value.firstUseDismissed === 'boolean')
+    result.firstUseDismissed = value.firstUseDismissed;
   return result;
 }
 
@@ -49,6 +56,10 @@ function readJson(key: string): unknown {
 
 export function loadPreferences(): Partial<WorkspacePreferences> {
   try {
+    const v4 = readJson(V4_KEY);
+    if (v4 !== null) return isRecord(v4) && v4.version === 4 ? validatePreferences(v4) : {};
+    const v3 = readJson(V3_KEY);
+    if (v3 !== null) return isRecord(v3) && v3.version === 3 ? validatePreferences(v3) : {};
     const v2 = readJson(V2_KEY);
     if (v2 !== null) return isRecord(v2) && v2.version === 2 ? validatePreferences(v2) : {};
     return validatePreferences(readJson(V1_KEY));
@@ -59,7 +70,7 @@ export function loadPreferences(): Partial<WorkspacePreferences> {
 
 export function savePreferences(preferences: WorkspacePreferences): void {
   try {
-    localStorage.setItem(V2_KEY, JSON.stringify({ version: 2, ...preferences }));
+    localStorage.setItem(V4_KEY, JSON.stringify({ version: 4, ...preferences }));
   } catch {
     /* Storage may be unavailable; calculation remains functional. */
   }

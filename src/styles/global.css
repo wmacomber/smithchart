@@ -27,6 +27,12 @@ button {
   padding: 0.55rem 0.75rem;
   cursor: pointer;
 }
+dialog {
+  color: var(--text);
+}
+dialog::backdrop {
+  background: rgb(2 12 18 / 0.62);
+}
 button,
 select,
 input:not([type='checkbox']):not([type='radio']) {
@@ -91,6 +97,22 @@ a {
   padding: 0.7rem max(1rem, calc((100vw - 1500px) / 2));
   background: var(--panel);
   border-bottom: 1px solid var(--line);
+}
+.first-use {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.guided-tour p {
+  margin: 0.25rem 0 0;
+  max-width: 72ch;
+}
+.tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  flex: none;
 }
 .url-warning {
   color: var(--warning);

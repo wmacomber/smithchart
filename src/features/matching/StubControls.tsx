@@ -1,5 +1,6 @@
 import { SegmentedControl } from '../../components/SegmentedControl';
 import type { StubTermination } from '../../rf';
+import { HelpTip } from '../../components/Tooltip';
 
 export function StubControls({
   termination,
@@ -10,7 +11,13 @@ export function StubControls({
 }) {
   return (
     <section>
-      <h2>Stub</h2>
+      <div className="section-heading">
+        <h2>Stub</h2>
+        <HelpTip
+          label="stub termination"
+          text="Open and short shunt stubs can supply the same required susceptance with different physical lengths."
+        />
+      </div>
       <SegmentedControl
         label="Termination"
         value={termination}

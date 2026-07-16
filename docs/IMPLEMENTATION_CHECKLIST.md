@@ -53,6 +53,22 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - Interaction evidence: offset/scaled/letterboxed pointer mapping, radial boundary clamp, optional pointer snapping, RAF previews, pointer capture outside chart, Escape cancellation, single history commit/undo, live fields/tooltip, fine/coarse keyboard movement, focus, accessible values, and 44 CSS-pixel mobile target pass.
 - Deviation: desktop browser automation cannot validate VoiceOver or TalkBack gesture synthesis. iOS Safari plus VoiceOver and Android Chrome plus TalkBack remain documented manual release checks.
 
+## Phase 5 matching visualization evidence — 2026-07-16
+
+- Owner: Codex implementation; commit: pending user workflow.
+- Commands/results: independent reference verifier, RF boundary check, format, lint, typecheck, 191 Vitest tests, production build, 13 Chromium visual snapshots, full 102-pass browser matrix with 30 expected browser/visual skips, full `bun run ci`, and `git diff --check` pass.
+- Geometry evidence: all 12 reference cases and both terminations verify common SWR radius, clockwise feed sweep, solver junction endpoints, `g=1` stub samples, exact center endpoint, electrical/physical annotations, and A/B ordering.
+- UX evidence: selected and overlay modes, URL-invariant comparison preference, responsive cards, complete clipboard/fallback text, residual diagnostics, matched/failure suppression, staged/reduced motion, SVG export, print, forced colors, and textual equivalents pass.
+- Deviation: VoiceOver and TalkBack manual assistive-touch checks remain release-gate work per accessibility documentation.
+
+## Phase 6 education and UX evidence — 2026-07-16
+
+- Owner: Codex implementation; commit: pending user workflow.
+- Commands/results: format, lint, typecheck, RF boundary, 12-case independent reference verification, 198 Vitest tests, production build, 17 Chromium visual baselines, and full Playwright matrix pass. Browser result: 127 passed with 38 expected non-Chromium visual, browser-limited clipboard, and generated-touch skips.
+- Education evidence: dismissible/restartable four-step guide; categorized Learn and Examples dialogs; eleven typed topics and ten chart targets; nine validated presets; preference v4 migration; contextual keyboard/touch help; temporary URL-invariant chart explanations; stale-draft gating; matched/active states; selected and alternate construction workflow; responsive advanced details; complete clipboard/fallback output; and construction assumptions/warnings pass.
+- Responsive/accessibility evidence: mobile chart/selected/input/alternate/advanced/warning order, mobile More actions disclosure, desktop grouped actions, axe serious/critical audit, keyboard focus and Escape behavior, reduced motion, forced colors, textual chart equivalents, and Chromium/Firefox/WebKit workflows pass.
+- Deviation: no runtime dependency, URL parameter, or RF-core change. VoiceOver and TalkBack manual assistive-touch checks remain Phase 7/release-gate work.
+
 ## Release readiness
 
 - [ ] Product, mathematical, architecture, accessibility, export, offline, and engineering gates in `docs/release-checklist.md` complete.

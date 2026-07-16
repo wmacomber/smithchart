@@ -2,6 +2,14 @@ import { Fragment } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { SmithChart } from '../SmithChart';
+import {
+  complex,
+  hertz,
+  impedanceToReflection,
+  normalizeImpedance,
+  ohms,
+  solveShuntStub,
+} from '../../rf';
 
 const layerNames = (markup: string): readonly string[] =>
   [...markup.matchAll(/data-layer="([^"]+)"/g)].map((match) => match[1]!);
@@ -57,5 +65,44 @@ describe('static Smith chart SVG', () => {
     const markup = renderToStaticMarkup(<SmithChart displayMode="both" density="dense" />);
     const renderedNodes = (markup.match(/<(?:circle|path|line|text)\b/g) ?? []).length;
     expect(renderedNodes).toBeLessThan(100);
+  });
+
+  it('renders both intersections and selected or overlay solution paths', () => {
+    const result = solveShuntStub({
+      load: { kind: 'finite', impedanceOhms: complex(35, -22) },
+      characteristicImpedanceOhms: ohms(50),
+      frequencyHz: hertz(14.2e6),
+      velocityFactor: 0.66,
+      termination: 'short',
+    });
+    expect(result.status).toBe('solved');
+    if (result.status !== 'solved') return;
+    const selected = renderToStaticMarkup(
+      <SmithChart
+        displayMode="both"
+        density="dense"
+        loadReflection={impedanceToReflection(normalizeImpedance(complex(35, -22), ohms(50)))}
+        solutions={result.solutions}
+        selectedSolution="A"
+        solutionView="selected"
+        termination="short"
+      />,
+    );
+    expect((selected.match(/class="solution-path/g) ?? []).length).toBe(1);
+    expect(selected).toContain('data-solution="A"');
+    expect(selected).toContain('data-solution="B"');
+    const overlay = renderToStaticMarkup(
+      <SmithChart
+        displayMode="both"
+        density="dense"
+        loadReflection={impedanceToReflection(normalizeImpedance(complex(35, -22), ohms(50)))}
+        solutions={result.solutions}
+        selectedSolution="A"
+        solutionView="overlay"
+        termination="short"
+      />,
+    );
+    expect((overlay.match(/class="solution-path/g) ?? []).length).toBe(2);
+    expect((overlay.match(/class="stub-path/g) ?? []).length).toBe(2);
   });
 });

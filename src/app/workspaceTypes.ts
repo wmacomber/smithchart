@@ -6,6 +6,9 @@ export type LengthUnit = 'm' | 'cm' | 'ft' | 'in';
 export type FrequencyUnit = 'Hz' | 'kHz' | 'MHz' | 'GHz';
 export type Theme = 'system' | 'light' | 'dark';
 export type SolutionId = 'A' | 'B';
+export type SolutionView = 'selected' | 'overlay';
+export type ExampleCategory = 'fundamentals' | 'edge-cases' | 'systems';
+export type ExampleExpectedStatus = 'solved' | 'matched';
 
 export interface CalculationState {
   readonly load: Load;
@@ -24,6 +27,8 @@ export interface WorkspacePreferences {
   readonly theme: Theme;
   readonly animationEnabled: boolean;
   readonly gridSnapping: boolean;
+  readonly solutionView: SolutionView;
+  readonly firstUseDismissed: boolean;
 }
 
 export interface WorkspaceState {
@@ -49,6 +54,8 @@ export type WorkspaceAction =
   | { readonly type: 'set-theme'; readonly value: Theme }
   | { readonly type: 'set-animation-enabled'; readonly value: boolean }
   | { readonly type: 'set-grid-snapping'; readonly value: boolean }
+  | { readonly type: 'set-solution-view'; readonly value: SolutionView }
+  | { readonly type: 'set-first-use-dismissed'; readonly value: boolean }
   | { readonly type: 'preview-load'; readonly load: Load }
   | { readonly type: 'cancel-preview' };
 
@@ -61,12 +68,11 @@ export interface WorkspaceHistory {
 export interface ExamplePreset {
   readonly id: string;
   readonly name: string;
-  readonly load: Load;
-  readonly z0: number;
-  readonly frequencyHz: number;
-  readonly velocityFactor: number;
-  readonly termination: StubTermination;
-  readonly note: string;
+  readonly category: ExampleCategory;
+  readonly description: string;
+  readonly learningGoal: string;
+  readonly calculation: Omit<CalculationState, 'selectedSolution'>;
+  readonly expectedStatus: ExampleExpectedStatus;
 }
 
 export const finiteLoad = (re: number, im: number): Load => ({

@@ -10,6 +10,9 @@ export function UnitField<T extends string>({
   onUnitChange,
   isAllowed,
   errorMessage,
+  helpText,
+  fieldId,
+  onDraftValidityChange,
 }: {
   readonly label: string;
   readonly value: number;
@@ -19,6 +22,9 @@ export function UnitField<T extends string>({
   readonly onUnitChange: (unit: T) => void;
   readonly isAllowed?: (value: number) => boolean;
   readonly errorMessage?: string;
+  readonly helpText?: string;
+  readonly fieldId?: string;
+  readonly onDraftValidityChange?: (fieldId: string, invalid: boolean) => void;
 }) {
   const id = useId();
   return (
@@ -29,6 +35,9 @@ export function UnitField<T extends string>({
         onCommit={onCommit}
         isAllowed={isAllowed}
         errorMessage={errorMessage}
+        helpText={helpText}
+        fieldId={fieldId}
+        onDraftValidityChange={onDraftValidityChange}
       />
       <label className="unit-select" htmlFor={id}>
         <span>{label} unit</span>

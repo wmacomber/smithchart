@@ -6,6 +6,11 @@
   .practical-warning button {
     display: none !important;
   }
+  .help-tip,
+  .education-dismiss,
+  .solution-comparison .compare-toggle {
+    display: none !important;
+  }
   body {
     background: white;
     color: black;
@@ -41,6 +46,16 @@
     --chart-load: black;
     --chart-secondary-opacity: 0.72;
     --chart-secondary-dash: 4 3;
+  }
+  .solution-b .solution-path,
+  .solution-b .stub-path,
+  .solution-b .junction-marker {
+    stroke: #444;
+  }
+  .matching-annotation,
+  .junction-label {
+    fill: black;
+    stroke: white;
   }
   [data-layer='interaction-overlay'],
   .marker-hit-container,
