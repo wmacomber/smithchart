@@ -15,9 +15,11 @@
 
 ## Distribution
 
-- [x] SVG export automated check and print stylesheet present.
-- [x] Offline registration and URL-backed update preservation pass.
+- [x] Standalone SVG sanitization, embedded style, accessible prose, versioned metadata, and download checks pass.
+- [x] Printable solved/stale/matched worksheet checks and monochrome visual baseline pass.
+- [x] Root and Pages-path offline reload, complete precache, scoped registration, and URL-backed update preservation pass.
 - [x] Runtime network audit clean.
+- [x] Installable PWA remains explicitly deferred; worker provides offline reload only.
 - [x] Frozen/reproducible build passes.
 - [x] MIT and direct dependency licenses confirmed; `bun audit` clean.
 - [ ] Pages deployment and prior-tag rollback tested.

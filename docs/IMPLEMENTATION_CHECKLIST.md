@@ -69,6 +69,14 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - Responsive/accessibility evidence: mobile chart/selected/input/alternate/advanced/warning order, mobile More actions disclosure, desktop grouped actions, axe serious/critical audit, keyboard focus and Escape behavior, reduced motion, forced colors, textual chart equivalents, and Chromium/Firefox/WebKit workflows pass.
 - Deviation: no runtime dependency, URL parameter, or RF-core change. VoiceOver and TalkBack manual assistive-touch checks remain Phase 7/release-gate work.
 
+## Phase 7A export, print, and offline evidence — 2026-07-16
+
+- Owner: Codex implementation; commit: pending user workflow.
+- Commands/results: full `bun run ci`, 200 Vitest tests, six-entry offline precache audit, 18 Chromium visual baselines, GitHub Pages-path offline smoke, `git diff --check`, and full Playwright matrix pass. Browser result: 134 passed with 40 expected non-Chromium visual, browser-limited clipboard, and generated-touch skips.
+- Export/print evidence: active SVG content and external references are removed; standalone CSS, accessible prose, versioned JSON metadata, both construction texts, stale gating, solved/stale/matched worksheets, monochrome output, and package-derived version pass.
+- Offline evidence: root offline reload passes in Chromium, Firefox, and WebKit; `/smithchart/` browser smoke and browser-independent base/worker-scope/precache audits pass. Installable PWA remains deferred.
+- Deviation: Playwright WebKit direct offline navigation throws an internal error, so WebKit uses an in-page scheduled reload with identical cached-document and failed-static-asset assertions.
+
 ## Release readiness
 
 - [ ] Product, mathematical, architecture, accessibility, export, offline, and engineering gates in `docs/release-checklist.md` complete.

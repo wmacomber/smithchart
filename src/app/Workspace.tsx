@@ -8,11 +8,14 @@ import { ExamplePicker } from '../features/examples/ExamplePicker';
 import { ANTENNA_EXAMPLE, EXAMPLES } from '../features/examples/examples';
 import { ExportSvgButton } from '../features/exporting/ExportSvgButton';
 import { PrintButton } from '../features/exporting/PrintButton';
+import { PrintWorksheetSummary } from '../features/exporting/PrintWorksheetSummary';
+import type { ChartExportMetadata } from '../features/exporting/serializeChart';
 import { LoadInputPanel } from '../features/load-input/LoadInputPanel';
 import { TransmissionLineInputs } from '../features/line-input/TransmissionLineInputs';
 import { StubControls } from '../features/matching/StubControls';
 import { SolutionComparison } from '../features/matching/SolutionComparison';
 import { SolutionResults } from '../features/results/SolutionResults';
+import { matchingResultText } from '../features/results/matchingResultText';
 import { ShareButton } from '../features/sharing/ShareButton';
 import { FirstUseGuide } from '../features/tutorial/FirstUseGuide';
 import { LearnPanel } from '../features/tutorial/LearnPanel';
@@ -65,22 +68,62 @@ export function Workspace({ initialState, urlWarnings }: Props) {
   const [draftIssues, setDraftIssues] = useState<ReadonlySet<string>>(() => new Set());
   const [educationAnnouncement, setEducationAnnouncement] = useState('');
   const stale = draftIssues.size > 0;
+  const exportMetadata: ChartExportMetadata = {
+    schemaVersion: 1,
+    application: { name: 'Smith Match', version: __APP_VERSION__ },
+    model: {
+      kind: 'lossless-single-frequency-shunt-stub',
+      termination: calculation.termination,
+    },
+    calculation: {
+      load: calculation.load,
+      characteristicImpedanceOhms: calculation.characteristicImpedanceOhms,
+      frequencyHz: calculation.frequencyHz,
+      velocityFactor: calculation.velocityFactor,
+    },
+    chart: {
+      displayMode: preferences.displayMode,
+      solutionView: preferences.solutionView,
+    },
+    result: {
+      status: result.status,
+      selectedSolution: calculation.selectedSolution,
+      instructions:
+        result.status === 'solved'
+          ? result.solutions.map(
+              (solution) =>
+                matchingResultText(
+                  solution,
+                  calculation.termination,
+                  preferences.lengthUnit,
+                  calculation,
+                ).complete,
+            )
+          : [],
+    },
+  };
 
-  const reportDraftValidity = useCallback((fieldId: string, invalid: boolean) => {
-    setDraftIssues((current) => {
-      const next = new Set(current);
-      if (invalid) next.add(fieldId);
-      else next.delete(fieldId);
-      if (next.size === current.size && [...next].every((item) => current.has(item)))
-        return current;
-      return next;
-    });
-  }, []);
+  const reportDraftValidity = useCallback(
+    (fieldId: string, invalid: boolean) => {
+      setDraftIssues((current) => {
+        const next = new Set(current);
+        if (invalid) next.add(fieldId);
+        else next.delete(fieldId);
+        if (next.size === current.size && [...next].every((item) => current.has(item)))
+          return current;
+        return next;
+      });
+    },
+    [setDraftIssues],
+  );
 
-  const act = useCallback((action: HistoryAction) => {
-    setEducationTopic(null);
-    dispatch(action);
-  }, []);
+  const act = useCallback(
+    (action: HistoryAction) => {
+      setEducationTopic(null);
+      dispatch(action);
+    },
+    [dispatch, setEducationTopic],
+  );
 
   const applyExample = useCallback(
     (example: ExamplePreset) => {
@@ -88,22 +131,27 @@ export function Workspace({ initialState, urlWarnings }: Props) {
       setExamplesOpen(false);
       setEducationAnnouncement(`${example.name} loaded. ${example.learningGoal}`);
     },
-    [act],
+    [act, setEducationAnnouncement, setExamplesOpen],
   );
 
-  const showTopic = useCallback((topic: LearnTopic) => {
-    setLearnOpen(false);
-    setEducationTopic(topic);
-    setEducationAnnouncement(`Showing ${EDUCATION_TARGET_LABELS[topic.chartTarget]} on the chart.`);
-    requestAnimationFrame(() => {
-      const chart = document.querySelector<HTMLElement>('[data-education-chart]');
-      chart?.scrollIntoView({
-        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-        block: 'center',
+  const showTopic = useCallback(
+    (topic: LearnTopic) => {
+      setLearnOpen(false);
+      setEducationTopic(topic);
+      setEducationAnnouncement(
+        `Showing ${EDUCATION_TARGET_LABELS[topic.chartTarget]} on the chart.`,
+      );
+      requestAnimationFrame(() => {
+        const chart = document.querySelector<HTMLElement>('[data-education-chart]');
+        chart?.scrollIntoView({
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'center',
+        });
+        chart?.focus({ preventScroll: true });
       });
-      chart?.focus({ preventScroll: true });
-    });
-  }, []);
+    },
+    [setEducationAnnouncement, setEducationTopic, setLearnOpen],
+  );
 
   useEffect(() => {
     const search = serializeUrlState(calculation);
@@ -154,7 +202,7 @@ export function Workspace({ initialState, urlWarnings }: Props) {
             </button>
           </div>
           <div className="action-group desktop-output-actions" aria-label="Output">
-            <ExportSvgButton disabled={stale} />
+            <ExportSvgButton metadata={exportMetadata} disabled={stale} />
             <PrintButton />
             <ShareButton
               disabled={stale}
@@ -164,7 +212,7 @@ export function Workspace({ initialState, urlWarnings }: Props) {
           <details className="more-actions mobile-output-actions">
             <summary>More actions</summary>
             <div>
-              <ExportSvgButton disabled={stale} />
+              <ExportSvgButton metadata={exportMetadata} disabled={stale} />
               <PrintButton />
               <ShareButton
                 disabled={stale}
@@ -201,6 +249,12 @@ export function Workspace({ initialState, urlWarnings }: Props) {
       <main
         className={`workspace ${preferences.animationEnabled ? 'motion-enabled' : ''} ${state.previewLoad ? 'preview-active' : ''}`}
       >
+        <PrintWorksheetSummary
+          calculation={calculation}
+          result={result}
+          stale={stale}
+          version={__APP_VERSION__}
+        />
         <section className="chart-panel">
           <SmithChart
             loadReflection={reflection}

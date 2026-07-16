@@ -91,6 +91,10 @@ Generators exclude declared singular domains explicitly. Deterministic cases cov
 - Education unit coverage proves nine unique presets, expected matched/solved classifications, two-solution residuals, termination/system coverage, URL round trips, preference v4 migration, and complete typed Learn targets.
 - Education Playwright coverage proves first-use persistence and restart, four-step navigation, explicit example application, every topic-to-chart mapping, URL-invariant highlights, accessible contextual help, stale-result gating, matched/active states, mobile action disclosure, clipboard fallback, and axe checks.
 - Visual baselines cover first-use mobile layout, desktop Learn, chart education highlighting, open advanced results, matched state, and the existing chart/matching matrix.
+- Export unit coverage treats SVG as active content: scripts, handlers, external references, injected styles, media, links, and `foreignObject` are removed while geometry, clip paths, markers, trusted style, accessible prose, and versioned JSON metadata remain.
+- Export Playwright coverage parses downloaded standalone SVG metadata, proves both complete construction texts, checks stale-draft gating, and verifies solved, stale, and matched print worksheets across Chromium, Firefox, and WebKit.
+- Offline Playwright coverage waits for worker activation, disables network, and reloads the same query-backed calculation from precache in Chromium, Firefox, and WebKit. WebKit uses an in-page scheduled reload because direct Playwright offline navigation fails inside WebKit; static-asset failure assertions remain identical. Supplemental Chromium coverage exercises the GitHub Pages project base; artifact checks provide browser-independent base and worker-scope evidence.
+- `scripts/verify-offline.mjs` binds document assets, favicon, navigation fallback, worker registration URL, and worker scope to one emitted base path.
 
 ## Commands
 
@@ -104,6 +108,10 @@ bun run typecheck
 bun run lint
 bun run format:check
 bun run ci
+BASE_PATH=/smithchart/ bun run build
+bun run verify:offline
+bun run test:e2e -- --workers=3 tests/e2e/export.spec.ts tests/e2e/copy.spec.ts tests/e2e/offline.spec.ts
+bun run test:e2e:pages -- --project=chromium
 git diff --check
 ```
 

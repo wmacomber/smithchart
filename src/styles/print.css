@@ -1,14 +1,65 @@
+.print-only {
+  display: none;
+}
+
+@page {
+  margin: 12mm;
+}
+
 @media print {
+  .print-only {
+    display: block;
+  }
+  .print-worksheet-summary {
+    grid-column: 1 / -1;
+    border-bottom: 2px solid black;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+  .print-worksheet-summary header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .print-worksheet-summary h2 {
+    color: black;
+    margin: 0;
+  }
+  .print-worksheet-summary dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 1rem;
+  }
+  .print-worksheet-summary dl div {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.8fr) 1fr;
+    border-top: 1px solid #bbb;
+    padding-top: 0.25rem;
+  }
+  .print-worksheet-summary dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .print-stale-warning {
+    border: 2px solid black;
+    padding: 0.5rem;
+    font-weight: 700;
+  }
   .instrument-bar nav,
   .learn-panel,
   .first-use,
   .segmented,
-  .practical-warning button {
+  .practical-warning button,
+  dialog,
+  button,
+  .controls-panel,
+  .copy-fallback,
+  .advanced-results {
     display: none !important;
   }
   .help-tip,
   .education-dismiss,
-  .solution-comparison .compare-toggle {
+  .solution-comparison {
     display: none !important;
   }
   body {
@@ -19,10 +70,10 @@
   }
   .workspace {
     display: block;
+    max-width: none;
     padding: 0;
   }
   .chart-panel,
-  .controls-panel,
   .result-card,
   .status-panel {
     box-shadow: none;
@@ -68,6 +119,29 @@
   .solutions {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+  .results-panel {
+    background: white;
+  }
+  .result-card.selected::before {
+    content: 'Selected construction';
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+  }
+  .result-card,
+  .result-card.selected {
+    border-color: black;
+  }
+  .result-card.solution-b {
+    border-color: #444;
+  }
+  .matching-legend .legend-solution i {
+    border-color: black;
+  }
+  .matching-legend .legend-solution.solution-b i {
+    border-color: #444;
+    border-top-style: dashed;
   }
   .practical-warning {
     color: black;

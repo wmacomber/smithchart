@@ -22,7 +22,7 @@ bun run build
 bun run test:e2e
 ```
 
-Vite builds static `dist/`. `BASE_PATH=/repository/ bun run build` supports GitHub Pages project paths. No server runtime or runtime network API exists.
+Vite builds static `dist/`. `BASE_PATH=/repository/ bun run build` supports GitHub Pages project paths. After one successful load and service-worker activation, visited calculations reload offline. First-ever offline load and installable PWA behavior are not supported. No server runtime or runtime network API exists.
 
 See [architecture](docs/architecture.md), [mathematics](docs/mathematics.md), [contributing](CONTRIBUTING.md), and [security](SECURITY.md).
 

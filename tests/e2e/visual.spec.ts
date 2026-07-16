@@ -76,6 +76,14 @@ test('@visual monochrome print chart', async ({ page }) => {
   });
 });
 
+test('@visual print worksheet', async ({ page }) => {
+  await page.emulateMedia({ media: 'print' });
+  await expect(page).toHaveScreenshot('print-worksheet.png', {
+    fullPage: true,
+    animations: 'disabled',
+  });
+});
+
 test('@visual both-solution matching overlay', async ({ page }) => {
   await page.getByRole('checkbox', { name: 'Compare both paths on chart' }).check();
   await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('matching-overlay-light.png', {

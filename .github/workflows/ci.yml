@@ -12,3 +12,4 @@ jobs:
       - run: bun run ci
       - run: bunx playwright install --with-deps chromium
       - run: bun run test:e2e -- --project=chromium
+      - run: bun run test:e2e:pages -- --project=chromium
