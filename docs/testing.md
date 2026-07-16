@@ -61,6 +61,8 @@ Vitest covers:
 - Solver ordering, residuals, physical classification, and numerical failure.
 - Every reference intermediate and edge fixture.
 - Mathematical-to-SVG coordinate inversion.
+- Client-to-viewBox pointer mapping across offsets, responsive scaling, and letterboxing.
+- Reflection constraints, pointer snapping, keyboard steps, and load/reflection interaction mapping.
 
 ## Property tests
 
@@ -83,6 +85,7 @@ Generators exclude declared singular domains explicitly. Deterministic cases cov
 - `bun run test:chart`: canonical geometry and single SVG inversion.
 - `bun run check:rf-boundary`: RF core remains DOM, React, SVG, URL, storage, and dependency free.
 - Playwright covers application workflows but is not mathematical evidence.
+- Playwright interaction coverage proves preview/commit/cancel transactions, pointer capture, live field and tooltip synchronization, keyboard fine/coarse movement, snapping, focus, and mobile target sizing across the configured browser matrix.
 
 ## Commands
 

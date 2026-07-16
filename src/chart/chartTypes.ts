@@ -35,6 +35,12 @@ export interface PositionedLabel {
   readonly kind: 'special' | 'primary' | 'secondary';
 }
 
+export interface LoadMarkerReadout {
+  readonly impedanceText: string;
+  readonly reflectionText: string;
+  readonly accessibleText: string;
+}
+
 export interface SmithChartProps {
   readonly displayMode: ChartDisplayMode;
   readonly density?: GridDensityMode;
@@ -43,6 +49,8 @@ export interface SmithChartProps {
   readonly loadReflection?: Complex;
   readonly solutions?: readonly [StubMatchSolution, StubMatchSolution];
   readonly selectedSolution?: 'A' | 'B';
+  readonly snapLoadPointer?: boolean;
+  readonly loadReadout?: LoadMarkerReadout;
   readonly onLoadPreview?: (reflection: Complex) => void;
   readonly onLoadCommit?: (reflection: Complex) => void;
   readonly onLoadCancel?: () => void;

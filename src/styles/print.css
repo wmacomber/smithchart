@@ -43,7 +43,11 @@
     --chart-secondary-dash: 4 3;
   }
   [data-layer='interaction-overlay'],
-  .marker-hit-target {
+  .marker-hit-container,
+  .marker-hit-target,
+  .load-marker-focus-ring,
+  .load-marker-tooltip,
+  .sr-only-svg {
     display: none;
   }
   .solutions {

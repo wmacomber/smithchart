@@ -14,46 +14,17 @@ import { SolutionResults } from '../features/results/SolutionResults';
 import { ShareButton } from '../features/sharing/ShareButton';
 import { FirstUseGuide } from '../features/tutorial/FirstUseGuide';
 import { LearnPanel } from '../features/tutorial/LearnPanel';
-import {
-  complex,
-  hertz,
-  impedanceToReflection,
-  normalizeImpedance,
-  ohms,
-  reflectionToImpedance,
-  solveShuntStub,
-} from '../rf';
-import type { Complex, Load } from '../rf';
+import { hertz, ohms, solveShuntStub } from '../rf';
+import { complex } from '../rf';
 import { loadPreferences, savePreferences } from '../persistence/preferences';
 import { serializeUrlState } from '../persistence/urlState';
 import { historyReducer } from './workspaceHistory';
+import { formatLoadMarkerReadout, loadToReflection, reflectionToLoad } from './loadMapping';
 import type { WorkspaceHistory, WorkspaceState } from './workspaceTypes';
 
 interface Props {
   readonly initialState: WorkspaceState;
   readonly urlWarnings: readonly string[];
-}
-
-function loadToReflection(load: Load, z0: number): Complex {
-  return load.kind === 'open'
-    ? complex(1, 0)
-    : impedanceToReflection(normalizeImpedance(load.impedanceOhms, ohms(z0)));
-}
-
-function reflectionToLoad(reflection: Complex, z0: number): Load {
-  if (Math.hypot(reflection.re - 1, reflection.im) < 1e-10) return { kind: 'open' };
-  const z = reflectionToImpedance(reflection);
-  return { kind: 'finite', impedanceOhms: complex(z.re * z0, z.im * z0) };
-}
-
-function snapReflection(reflection: Complex): Complex {
-  const step = 0.02;
-  const snapped = complex(
-    Math.round(reflection.re / step) * step,
-    Math.round(reflection.im / step) * step,
-  );
-  const length = Math.hypot(snapped.re, snapped.im);
-  return length > 1 ? complex(snapped.re / length, snapped.im / length) : snapped;
 }
 
 function initializeHistory(initialState: WorkspaceState): WorkspaceHistory {
@@ -75,6 +46,7 @@ export function Workspace({ initialState, urlWarnings }: Props) {
   const preferences = state.preferences;
   const activeLoad = state.previewLoad ?? calculation.load;
   const reflection = loadToReflection(activeLoad, calculation.characteristicImpedanceOhms);
+  const loadReadout = formatLoadMarkerReadout(activeLoad, reflection);
   const result = solveShuntStub({
     load: activeLoad,
     characteristicImpedanceOhms: ohms(calculation.characteristicImpedanceOhms),
@@ -151,22 +123,18 @@ export function Workspace({ initialState, urlWarnings }: Props) {
             solutions={result.status === 'solved' ? result.solutions : undefined}
             selectedSolution={calculation.selectedSolution}
             displayMode={preferences.displayMode}
+            snapLoadPointer={preferences.gridSnapping}
+            loadReadout={loadReadout}
             onLoadPreview={(value) =>
               dispatch({
                 type: 'preview-load',
-                load: reflectionToLoad(
-                  preferences.gridSnapping ? snapReflection(value) : value,
-                  calculation.characteristicImpedanceOhms,
-                ),
+                load: reflectionToLoad(value, calculation.characteristicImpedanceOhms),
               })
             }
             onLoadCommit={(value) =>
               dispatch({
                 type: 'commit-load',
-                load: reflectionToLoad(
-                  preferences.gridSnapping ? snapReflection(value) : value,
-                  calculation.characteristicImpedanceOhms,
-                ),
+                load: reflectionToLoad(value, calculation.characteristicImpedanceOhms),
               })
             }
             onLoadCancel={() => dispatch({ type: 'cancel-preview' })}
@@ -192,7 +160,7 @@ export function Workspace({ initialState, urlWarnings }: Props) {
         </section>
         <aside className="controls-panel">
           <LoadInputPanel
-            load={calculation.load}
+            load={activeLoad}
             characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
             representation={preferences.loadRepresentation}
             onRepresentationChange={(value) => dispatch({ type: 'set-load-representation', value })}
@@ -251,7 +219,7 @@ export function Workspace({ initialState, urlWarnings }: Props) {
                   dispatch({ type: 'set-grid-snapping', value: event.target.checked })
                 }
               />{' '}
-              Grid snapping
+              Snap pointer to 0.02 Γ grid
             </label>
           </Disclosure>
         </aside>

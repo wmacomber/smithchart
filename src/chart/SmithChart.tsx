@@ -19,6 +19,8 @@ export function SmithChart({
   loadReflection,
   solutions,
   selectedSolution,
+  snapLoadPointer = false,
+  loadReadout,
   onLoadPreview,
   onLoadCommit,
   onLoadCancel,
@@ -30,7 +32,10 @@ export function SmithChart({
   const markerId = `direction-arrow-${instanceId}`;
   const [chartRef, density] = useChartSize(densityMode);
   const selected = solutions?.find((solution) => solution.id === selectedSolution);
-  const interactive = Boolean(loadReflection && onLoadPreview && onLoadCommit && onLoadCancel);
+  const draggableLoad = Boolean(loadReflection && magnitude(loadReflection) <= 1 + 1e-12);
+  const interactive = Boolean(
+    draggableLoad && loadReadout && onLoadPreview && onLoadCommit && onLoadCancel,
+  );
 
   return (
     <svg
@@ -87,14 +92,21 @@ export function SmithChart({
         )}
       </g>
       <g data-layer="markers">
-        {loadReflection && onLoadPreview && onLoadCommit && onLoadCancel && (
-          <LoadMarker
-            reflection={loadReflection}
-            onPreview={onLoadPreview}
-            onCommit={onLoadCommit}
-            onCancel={onLoadCancel}
-          />
-        )}
+        {interactive &&
+          loadReflection &&
+          loadReadout &&
+          onLoadPreview &&
+          onLoadCommit &&
+          onLoadCancel && (
+            <LoadMarker
+              reflection={loadReflection}
+              readout={loadReadout}
+              snapPointer={snapLoadPointer}
+              onPreview={onLoadPreview}
+              onCommit={onLoadCommit}
+              onCancel={onLoadCancel}
+            />
+          )}
       </g>
       <g data-layer="interaction-overlay" />
       <circle

@@ -18,3 +18,16 @@ test('@a11y associates numeric errors and exposes native mode semantics', async 
   await expect(page.getByRole('radio', { name: 'Impedance', exact: true })).toBeChecked();
   await expect(page.getByRole('radio', { name: 'Short' })).toBeChecked();
 });
+
+test('@a11y load marker exposes stable name, instructions, and live value', async ({ page }) => {
+  await page.goto('/');
+  const marker = page.getByRole('slider', { name: 'Load marker' });
+  await expect(marker).toHaveAttribute('aria-describedby', /load-marker-instructions/);
+  await expect(marker).toHaveAttribute('aria-valuetext', /resistance.*reflection magnitude/i);
+  await marker.focus();
+  await marker.press('ArrowRight');
+  await expect(page.locator('.load-marker-focus-ring')).toHaveCSS('stroke-width', '3px');
+  await expect(page.locator('.load-marker-tooltip')).toBeVisible();
+  await marker.press('Escape');
+  await expect(page.locator('[id^="load-marker-status-"]')).toContainText('canceled');
+});

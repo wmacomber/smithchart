@@ -46,4 +46,25 @@ describe('historyReducer', () => {
       history = historyReducer(history, { type: 'commit-frequency', value });
     expect(history.past).toHaveLength(100);
   });
+
+  it('commits one preview transaction and undoes to its starting load', () => {
+    let history = initial();
+    const startingLoad = history.present.calculation.load;
+    history = historyReducer(history, {
+      type: 'preview-load',
+      load: { kind: 'finite', impedanceOhms: { re: 40, im: 5 } },
+    });
+    history = historyReducer(history, {
+      type: 'preview-load',
+      load: { kind: 'finite', impedanceOhms: { re: 45, im: 10 } },
+    });
+    expect(history.past).toHaveLength(0);
+    history = historyReducer(history, {
+      type: 'commit-load',
+      load: { kind: 'finite', impedanceOhms: { re: 45, im: 10 } },
+    });
+    expect(history.past).toHaveLength(1);
+    history = historyReducer(history, { type: 'undo' });
+    expect(history.present.calculation.load).toEqual(startingLoad);
+  });
 });

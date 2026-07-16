@@ -46,6 +46,13 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - Boundary evidence: standalone ES2022 compilation passes; package, React, JSX, DOM, storage, URL, network, timer, date, console, and browser-state access remain prohibited.
 - Deviation: none.
 
+## Phase 4B interaction evidence — 2026-07-16
+
+- Owner: Codex implementation; commit: pending user workflow.
+- Commands/results: `bun run test:chart` passes 40 chart tests; full `bun run test` passes 158 tests; targeted Playwright interaction, generated-touch, touch-target, keyboard, and accessibility matrix passes 34 tests with 2 expected CDP-only skips across Chromium, Firefox, and WebKit; `bun run build`, `bun run lint`, and `bun run typecheck` pass.
+- Interaction evidence: offset/scaled/letterboxed pointer mapping, radial boundary clamp, optional pointer snapping, RAF previews, pointer capture outside chart, Escape cancellation, single history commit/undo, live fields/tooltip, fine/coarse keyboard movement, focus, accessible values, and 44 CSS-pixel mobile target pass.
+- Deviation: desktop browser automation cannot validate VoiceOver or TalkBack gesture synthesis. iOS Safari plus VoiceOver and Android Chrome plus TalkBack remain documented manual release checks.
+
 ## Release readiness
 
 - [ ] Product, mathematical, architecture, accessibility, export, offline, and engineering gates in `docs/release-checklist.md` complete.
