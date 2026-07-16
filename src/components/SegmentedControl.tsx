@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 
 export function SegmentedControl<T extends string>({
   label,
@@ -8,22 +8,26 @@ export function SegmentedControl<T extends string>({
 }: {
   readonly label: string;
   readonly value: T;
-  readonly options: readonly { value: T; label: ReactNode }[];
+  readonly options: readonly { value: T; label: ReactNode; accessibleLabel?: string }[];
   readonly onChange: (value: T) => void;
 }) {
+  const name = useId();
   return (
     <fieldset className="segmented">
       <legend>{label}</legend>
       <div>
         {options.map((option) => (
-          <button
-            type="button"
-            key={option.value}
-            aria-pressed={value === option.value}
-            onClick={() => onChange(option.value)}
-          >
-            {option.label}
-          </button>
+          <label key={option.value}>
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              aria-label={option.accessibleLabel}
+              onChange={() => onChange(option.value)}
+            />
+            <span>{option.label}</span>
+          </label>
         ))}
       </div>
     </fieldset>

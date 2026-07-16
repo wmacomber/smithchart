@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
+import { parseNumericInput, resetNumericInput, type NumericInputIssue } from './numericInput';
 
 interface Props {
   readonly label: string;
@@ -7,7 +8,15 @@ interface Props {
   readonly onCommit: (value: number) => void;
   readonly isAllowed?: (value: number) => boolean;
   readonly errorMessage?: string;
+  readonly className?: string;
 }
+
+const DEFAULT_MESSAGES: Record<Exclude<NumericInputIssue, null>, string> = {
+  empty: 'Enter a number.',
+  incomplete: 'Finish entering the number.',
+  'invalid-number': 'Enter a valid finite number.',
+  'out-of-range': 'Enter a value in the allowed range.',
+};
 
 export function NumberField({
   label,
@@ -15,40 +24,64 @@ export function NumberField({
   unit,
   onCommit,
   isAllowed = () => true,
-  errorMessage = 'Enter a valid finite number.',
+  errorMessage,
+  className,
 }: Props) {
-  const [raw, setRaw] = useState(String(value));
-  const parsed = raw.trim() === '' ? null : Number(raw);
-  const valid = parsed !== null && Number.isFinite(parsed) && isAllowed(parsed);
-  // External undo, URL restore, and chart manipulation must reset field text.
+  const [draft, setDraft] = useState(() => resetNumericInput(value));
+  const reactId = useId();
+  const id = `number-field-${reactId.replace(/:/g, '')}`;
+  const errorId = `${id}-error`;
+  const unitId = `${id}-unit`;
+
+  // Committed changes from undo, URL restore, examples, units, or representation reset drafts.
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => setRaw(String(value)), [value]);
+  useEffect(() => setDraft(resetNumericInput(value)), [value]);
+
   const commit = () => {
-    if (valid) onCommit(parsed);
-    else setRaw(String(value));
+    if (draft.issue === null && draft.parsed !== null) {
+      setDraft(resetNumericInput(draft.parsed));
+      onCommit(draft.parsed);
+    }
   };
-  const id = `field-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  const message = draft.issue
+    ? draft.issue === 'out-of-range' && errorMessage
+      ? errorMessage
+      : DEFAULT_MESSAGES[draft.issue]
+    : null;
+
   return (
-    <label className="number-field" htmlFor={id}>
+    <label className={`number-field${className ? ` ${className}` : ''}`} htmlFor={id}>
       <span>{label}</span>
       <span className="field-control">
         <input
           id={id}
-          value={raw}
+          type="text"
+          value={draft.raw}
           inputMode="decimal"
-          aria-invalid={!valid}
-          onChange={(e) => setRaw(e.target.value)}
+          aria-invalid={message ? true : undefined}
+          aria-errormessage={message ? errorId : undefined}
+          aria-describedby={unit ? unitId : undefined}
+          onChange={(event) =>
+            setDraft(parseNumericInput(event.target.value, draft.committed, isAllowed))
+          }
           onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') commit();
-            if (e.key === 'Escape') setRaw(String(value));
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') commit();
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              setDraft(resetNumericInput(value));
+            }
           }}
         />
-        {unit && <span aria-hidden="true">{unit}</span>}
+        {unit && (
+          <span id={unitId} className="field-unit">
+            {unit}
+          </span>
+        )}
       </span>
-      {!valid && (
-        <span className="field-error" role="alert">
-          {errorMessage}
+      {message && (
+        <span id={errorId} className="field-error" aria-live="polite">
+          {message}
         </span>
       )}
     </label>

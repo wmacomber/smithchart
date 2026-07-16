@@ -3,43 +3,59 @@ import type { Complex, Load, StubTermination } from '../rf';
 export type LoadRepresentation = 'impedance' | 'admittance' | 'reflection';
 export type DisplayMode = 'impedance' | 'admittance' | 'both';
 export type LengthUnit = 'm' | 'cm' | 'ft' | 'in';
+export type FrequencyUnit = 'Hz' | 'kHz' | 'MHz' | 'GHz';
+export type Theme = 'system' | 'light' | 'dark';
+export type SolutionId = 'A' | 'B';
 
-export interface WorkspaceState {
-  readonly loadRepresentation: LoadRepresentation;
+export interface CalculationState {
   readonly load: Load;
   readonly characteristicImpedanceOhms: number;
   readonly frequencyHz: number;
   readonly velocityFactor: number;
   readonly termination: StubTermination;
-  readonly selectedSolution: 'A' | 'B';
+  readonly selectedSolution: SolutionId;
+}
+
+export interface WorkspacePreferences {
+  readonly loadRepresentation: LoadRepresentation;
   readonly displayMode: DisplayMode;
   readonly lengthUnit: LengthUnit;
-  readonly theme: 'system' | 'light' | 'dark';
+  readonly frequencyUnit: FrequencyUnit;
+  readonly theme: Theme;
   readonly animationEnabled: boolean;
   readonly gridSnapping: boolean;
+}
+
+export interface WorkspaceState {
+  readonly calculation: CalculationState;
+  readonly preferences: WorkspacePreferences;
   readonly previewLoad: Load | null;
 }
 
 export type WorkspaceAction =
-  | { readonly type: 'set-load'; readonly load: Load }
-  | { readonly type: 'preview-load'; readonly load: Load }
-  | { readonly type: 'cancel-preview' }
-  | { readonly type: 'set-z0'; readonly value: number }
-  | { readonly type: 'set-frequency'; readonly value: number }
-  | { readonly type: 'set-vf'; readonly value: number }
+  | { readonly type: 'commit-load'; readonly load: Load }
+  | { readonly type: 'commit-characteristic-impedance'; readonly value: number }
+  | { readonly type: 'commit-frequency'; readonly value: number }
+  | { readonly type: 'commit-velocity-factor'; readonly value: number }
   | { readonly type: 'set-termination'; readonly value: StubTermination }
-  | { readonly type: 'select-solution'; readonly value: 'A' | 'B' }
-  | { readonly type: 'set-representation'; readonly value: LoadRepresentation }
-  | { readonly type: 'set-display'; readonly value: DisplayMode }
-  | { readonly type: 'set-theme'; readonly value: WorkspaceState['theme'] }
-  | { readonly type: 'toggle-animation' }
-  | { readonly type: 'toggle-snap' }
-  | { readonly type: 'replace'; readonly value: WorkspaceState };
+  | { readonly type: 'select-solution'; readonly value: SolutionId }
+  | { readonly type: 'apply-example'; readonly example: ExamplePreset }
+  | { readonly type: 'reset-calculation' }
+  | { readonly type: 'replace-calculation'; readonly value: CalculationState }
+  | { readonly type: 'set-load-representation'; readonly value: LoadRepresentation }
+  | { readonly type: 'set-display-mode'; readonly value: DisplayMode }
+  | { readonly type: 'set-length-unit'; readonly value: LengthUnit }
+  | { readonly type: 'set-frequency-unit'; readonly value: FrequencyUnit }
+  | { readonly type: 'set-theme'; readonly value: Theme }
+  | { readonly type: 'set-animation-enabled'; readonly value: boolean }
+  | { readonly type: 'set-grid-snapping'; readonly value: boolean }
+  | { readonly type: 'preview-load'; readonly load: Load }
+  | { readonly type: 'cancel-preview' };
 
 export interface WorkspaceHistory {
-  readonly past: readonly WorkspaceState[];
+  readonly past: readonly CalculationState[];
   readonly present: WorkspaceState;
-  readonly future: readonly WorkspaceState[];
+  readonly future: readonly CalculationState[];
 }
 
 export interface ExamplePreset {

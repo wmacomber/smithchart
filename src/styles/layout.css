@@ -169,6 +169,47 @@
 .field-error {
   grid-column: 2;
 }
+.field-unit {
+  white-space: nowrap;
+}
+.unit-field {
+  display: grid;
+  grid-template-columns: 1fr minmax(100px, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+.unit-field .number-field {
+  display: contents;
+}
+.unit-field .field-error {
+  grid-column: 2 / -1;
+}
+.unit-field .field-control {
+  grid-column: 2;
+  min-width: 0;
+}
+.unit-select,
+.preference-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0.65rem 0;
+}
+.unit-select {
+  grid-column: 3;
+}
+.unit-select > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.unit-select select,
+.preference-select select {
+  padding: 0.45rem;
+}
 .segmented {
   border: 0;
   padding: 0;
@@ -182,19 +223,42 @@
 .segmented div {
   display: flex;
 }
-.segmented button {
-  border-radius: 0;
+.segmented label {
+  position: relative;
+  cursor: pointer;
 }
-.segmented button:first-child {
+.segmented input {
+  position: absolute;
+  opacity: 0;
+}
+.segmented label span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line);
+  margin-left: -1px;
+  background: var(--panel-strong);
+}
+.segmented label:first-child span {
+  margin-left: 0;
   border-radius: 7px 0 0 7px;
 }
-.segmented button:last-child {
+.segmented label:last-child span {
   border-radius: 0 7px 7px 0;
 }
-.segmented button[aria-pressed='true'] {
+.segmented input:checked + span {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
+}
+.segmented input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  position: relative;
+  z-index: 1;
 }
 details {
   border-top: 1px solid var(--line);

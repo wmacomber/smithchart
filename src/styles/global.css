@@ -27,6 +27,11 @@ button {
   padding: 0.55rem 0.75rem;
   cursor: pointer;
 }
+button,
+select,
+input:not([type='checkbox']):not([type='radio']) {
+  min-height: 44px;
+}
 .icon-button {
   display: inline-flex;
   align-items: center;

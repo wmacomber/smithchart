@@ -1,4 +1,5 @@
 import type { StubMatchResult, StubTermination } from '../../rf';
+import type { LengthUnit } from '../../app/workspaceTypes';
 import { ResultCard } from '../../components/ResultCard';
 import { Disclosure } from '../../components/Disclosure';
 import { ConstructionInstructions } from './ConstructionInstructions';
@@ -7,11 +8,13 @@ export function SolutionResults({
   result,
   termination,
   selected,
+  lengthUnit,
   onSelect,
 }: {
   readonly result: StubMatchResult;
   readonly termination: StubTermination;
   readonly selected: 'A' | 'B';
+  readonly lengthUnit: LengthUnit;
   readonly onSelect: (id: 'A' | 'B') => void;
 }) {
   if (result.status === 'matched')
@@ -59,7 +62,11 @@ export function SolutionResults({
           selected={selected === solution.id}
           onSelect={() => onSelect(solution.id)}
         >
-          <ConstructionInstructions solution={solution} termination={termination} />
+          <ConstructionInstructions
+            solution={solution}
+            termination={termination}
+            lengthUnit={lengthUnit}
+          />
           <Disclosure title="Detailed RF quantities">
             <ResultDetails solution={solution} />
           </Disclosure>

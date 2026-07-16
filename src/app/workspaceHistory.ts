@@ -1,9 +1,38 @@
 import { workspaceReducer } from './workspaceReducer';
-import type { WorkspaceAction, WorkspaceHistory } from './workspaceTypes';
+import type { CalculationState, WorkspaceAction, WorkspaceHistory } from './workspaceTypes';
 
-const TRANSIENT = new Set<WorkspaceAction['type']>(['preview-load', 'cancel-preview']);
+const HISTORY_LIMIT = 100;
+const CALCULATION_ACTIONS = new Set<WorkspaceAction['type']>([
+  'commit-load',
+  'commit-characteristic-impedance',
+  'commit-frequency',
+  'commit-velocity-factor',
+  'set-termination',
+  'select-solution',
+  'apply-example',
+  'reset-calculation',
+  'replace-calculation',
+]);
 
-type HistoryAction = WorkspaceAction | { readonly type: 'undo' } | { readonly type: 'redo' };
+export type HistoryAction = WorkspaceAction | { readonly type: 'undo' } | { readonly type: 'redo' };
+
+function sameCalculation(left: CalculationState, right: CalculationState): boolean {
+  if (
+    left.characteristicImpedanceOhms !== right.characteristicImpedanceOhms ||
+    left.frequencyHz !== right.frequencyHz ||
+    left.velocityFactor !== right.velocityFactor ||
+    left.termination !== right.termination ||
+    left.selectedSolution !== right.selectedSolution ||
+    left.load.kind !== right.load.kind
+  )
+    return false;
+  return (
+    left.load.kind === 'open' ||
+    (right.load.kind === 'finite' &&
+      left.load.impedanceOhms.re === right.load.impedanceOhms.re &&
+      left.load.impedanceOhms.im === right.load.impedanceOhms.im)
+  );
+}
 
 export function historyReducer(history: WorkspaceHistory, action: HistoryAction): WorkspaceHistory {
   if (action.type === 'undo') {
@@ -11,22 +40,28 @@ export function historyReducer(history: WorkspaceHistory, action: HistoryAction)
     if (!previous) return history;
     return {
       past: history.past.slice(0, -1),
-      present: previous,
-      future: [history.present, ...history.future],
+      present: { ...history.present, calculation: previous, previewLoad: null },
+      future: [history.present.calculation, ...history.future],
     };
   }
   if (action.type === 'redo') {
     const next = history.future[0];
     if (!next) return history;
     return {
-      past: [...history.past, history.present],
-      present: next,
+      past: [...history.past, history.present.calculation].slice(-HISTORY_LIMIT),
+      present: { ...history.present, calculation: next, previewLoad: null },
       future: history.future.slice(1),
     };
   }
+
   const next = workspaceReducer(history.present, action);
   if (next === history.present) return history;
-  if (TRANSIENT.has(action.type)) return { ...history, present: next };
-  const committedPresent = { ...history.present, previewLoad: null };
-  return { past: [...history.past, committedPresent], present: next, future: [] };
+  if (!CALCULATION_ACTIONS.has(action.type)) return { ...history, present: next };
+  if (sameCalculation(next.calculation, history.present.calculation))
+    return { ...history, present: next };
+  return {
+    past: [...history.past, history.present.calculation].slice(-HISTORY_LIMIT),
+    present: next,
+    future: [],
+  };
 }

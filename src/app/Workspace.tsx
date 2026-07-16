@@ -1,22 +1,22 @@
-import { useEffect, useMemo, useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { Redo2, Undo2 } from 'lucide-react';
 import { ChartDescription } from '../chart/ChartDescription';
 import { SmithChart } from '../chart/SmithChart';
 import { Disclosure } from '../components/Disclosure';
-import { NumberField } from '../components/NumberField';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { ExamplePicker } from '../features/examples/ExamplePicker';
 import { ExportSvgButton } from '../features/exporting/ExportSvgButton';
 import { PrintButton } from '../features/exporting/PrintButton';
+import { LoadInputPanel } from '../features/load-input/LoadInputPanel';
+import { TransmissionLineInputs } from '../features/line-input/TransmissionLineInputs';
+import { StubControls } from '../features/matching/StubControls';
 import { SolutionResults } from '../features/results/SolutionResults';
 import { ShareButton } from '../features/sharing/ShareButton';
 import { FirstUseGuide } from '../features/tutorial/FirstUseGuide';
 import { LearnPanel } from '../features/tutorial/LearnPanel';
 import {
-  admittanceToImpedance,
   complex,
   hertz,
-  impedanceToAdmittance,
   impedanceToReflection,
   normalizeImpedance,
   ohms,
@@ -27,7 +27,7 @@ import type { Complex, Load } from '../rf';
 import { loadPreferences, savePreferences } from '../persistence/preferences';
 import { serializeUrlState } from '../persistence/urlState';
 import { historyReducer } from './workspaceHistory';
-import type { ExamplePreset, LoadRepresentation, WorkspaceState } from './workspaceTypes';
+import type { WorkspaceHistory, WorkspaceState } from './workspaceTypes';
 
 interface Props {
   readonly initialState: WorkspaceState;
@@ -56,98 +56,49 @@ function snapReflection(reflection: Complex): Complex {
   return length > 1 ? complex(snapped.re / length, snapped.im / length) : snapped;
 }
 
-export function Workspace({ initialState, urlWarnings }: Props) {
-  const preferences = useMemo(() => loadPreferences(), []);
-  const start = {
-    ...initialState,
-    ...preferences,
-    load: initialState.load,
-    selectedSolution: initialState.selectedSolution,
+function initializeHistory(initialState: WorkspaceState): WorkspaceHistory {
+  return {
+    past: [],
+    present: {
+      ...initialState,
+      preferences: { ...initialState.preferences, ...loadPreferences() },
+      previewLoad: null,
+    },
+    future: [],
   };
-  const [history, dispatch] = useReducer(historyReducer, { past: [], present: start, future: [] });
+}
+
+export function Workspace({ initialState, urlWarnings }: Props) {
+  const [history, dispatch] = useReducer(historyReducer, initialState, initializeHistory);
   const state = history.present;
-  const activeLoad = state.previewLoad ?? state.load;
-  const reflection = loadToReflection(activeLoad, state.characteristicImpedanceOhms);
+  const calculation = state.calculation;
+  const preferences = state.preferences;
+  const activeLoad = state.previewLoad ?? calculation.load;
+  const reflection = loadToReflection(activeLoad, calculation.characteristicImpedanceOhms);
   const result = solveShuntStub({
     load: activeLoad,
-    characteristicImpedanceOhms: ohms(state.characteristicImpedanceOhms),
-    frequencyHz: hertz(state.frequencyHz),
-    velocityFactor: state.velocityFactor,
-    termination: state.termination,
+    characteristicImpedanceOhms: ohms(calculation.characteristicImpedanceOhms),
+    frequencyHz: hertz(calculation.frequencyHz),
+    velocityFactor: calculation.velocityFactor,
+    termination: calculation.termination,
   });
   const [updateApp, setUpdateApp] = useState<null | (() => Promise<void>)>(null);
 
   useEffect(() => {
-    const search = serializeUrlState(state);
+    const search = serializeUrlState(calculation);
     globalThis.history.replaceState(null, '', `${location.pathname}${search}${location.hash}`);
-    savePreferences(state);
-    document.documentElement.dataset.theme = state.theme;
-  }, [state]);
+  }, [calculation]);
+
+  useEffect(() => {
+    savePreferences(preferences);
+    document.documentElement.dataset.theme = preferences.theme;
+  }, [preferences]);
 
   useEffect(() => {
     void import('../persistence/serviceWorkerRegistration').then(({ registerServiceWorker }) =>
       registerServiceWorker(setUpdateApp),
     );
   }, []);
-
-  const commitImpedance = (part: 're' | 'im', value: number) => {
-    const current =
-      state.load.kind === 'finite'
-        ? state.load.impedanceOhms
-        : complex(state.characteristicImpedanceOhms, 0);
-    dispatch({
-      type: 'set-load',
-      load: { kind: 'finite', impedanceOhms: { ...current, [part]: value } },
-    });
-  };
-  const updateRepresentation = (first: number, second: number) => {
-    let impedance: Complex;
-    if (state.loadRepresentation === 'admittance')
-      impedance = admittanceToImpedance(complex(first, second));
-    else if (state.loadRepresentation === 'reflection') {
-      const angle = (second * Math.PI) / 180;
-      const normalized = reflectionToImpedance(
-        complex(first * Math.cos(angle), first * Math.sin(angle)),
-      );
-      impedance = complex(
-        normalized.re * state.characteristicImpedanceOhms,
-        normalized.im * state.characteristicImpedanceOhms,
-      );
-    } else impedance = complex(first, second);
-    dispatch({ type: 'set-load', load: { kind: 'finite', impedanceOhms: impedance } });
-  };
-  const finite =
-    activeLoad.kind === 'finite' ? activeLoad.impedanceOhms : complex(Number.POSITIVE_INFINITY, 0);
-  const admittance = activeLoad.kind === 'finite' ? impedanceToAdmittance(finite) : complex(0, 0);
-  const representationValues =
-    state.loadRepresentation === 'impedance'
-      ? [finite.re, finite.im]
-      : state.loadRepresentation === 'admittance'
-        ? [admittance.re, admittance.im]
-        : [
-            Math.hypot(reflection.re, reflection.im),
-            (Math.atan2(reflection.im, reflection.re) * 180) / Math.PI,
-          ];
-  const representationLabels =
-    state.loadRepresentation === 'impedance'
-      ? ['Resistance', 'Reactance', 'Ω']
-      : state.loadRepresentation === 'admittance'
-        ? ['Conductance', 'Susceptance', 'S']
-        : ['Magnitude', 'Phase', '°'];
-  const applyExample = (example: ExamplePreset) =>
-    dispatch({
-      type: 'replace',
-      value: {
-        ...state,
-        load: example.load,
-        characteristicImpedanceOhms: example.z0,
-        frequencyHz: example.frequencyHz,
-        velocityFactor: example.velocityFactor,
-        termination: example.termination,
-        selectedSolution: 'A',
-        previewLoad: null,
-      },
-    });
 
   return (
     <>
@@ -171,10 +122,12 @@ export function Workspace({ initialState, urlWarnings }: Props) {
           >
             <Redo2 size={16} aria-hidden="true" /> Redo
           </button>
-          <ExamplePicker onSelect={applyExample} />
+          <ExamplePicker onSelect={(example) => dispatch({ type: 'apply-example', example })} />
           <ExportSvgButton />
           <PrintButton />
-          <ShareButton url={`${location.origin}${location.pathname}${serializeUrlState(state)}`} />
+          <ShareButton
+            url={`${location.origin}${location.pathname}${serializeUrlState(calculation)}`}
+          />
         </nav>
       </header>
       {urlWarnings.length > 0 && (
@@ -191,28 +144,28 @@ export function Workspace({ initialState, urlWarnings }: Props) {
         </div>
       )}
       <FirstUseGuide />
-      <main className={`workspace ${state.animationEnabled ? 'motion-enabled' : ''}`}>
+      <main className={`workspace ${preferences.animationEnabled ? 'motion-enabled' : ''}`}>
         <section className="chart-panel">
           <SmithChart
             loadReflection={reflection}
             solutions={result.status === 'solved' ? result.solutions : undefined}
-            selectedSolution={state.selectedSolution}
-            displayMode={state.displayMode}
+            selectedSolution={calculation.selectedSolution}
+            displayMode={preferences.displayMode}
             onLoadPreview={(value) =>
               dispatch({
                 type: 'preview-load',
                 load: reflectionToLoad(
-                  state.gridSnapping ? snapReflection(value) : value,
-                  state.characteristicImpedanceOhms,
+                  preferences.gridSnapping ? snapReflection(value) : value,
+                  calculation.characteristicImpedanceOhms,
                 ),
               })
             }
             onLoadCommit={(value) =>
               dispatch({
-                type: 'set-load',
+                type: 'commit-load',
                 load: reflectionToLoad(
-                  state.gridSnapping ? snapReflection(value) : value,
-                  state.characteristicImpedanceOhms,
+                  preferences.gridSnapping ? snapReflection(value) : value,
+                  calculation.characteristicImpedanceOhms,
                 ),
               })
             }
@@ -228,124 +181,50 @@ export function Workspace({ initialState, urlWarnings }: Props) {
           />
           <SegmentedControl
             label="Chart grid"
-            value={state.displayMode}
+            value={preferences.displayMode}
             options={[
-              { value: 'impedance', label: 'Z' },
-              { value: 'admittance', label: 'Y' },
+              { value: 'impedance', label: 'Z', accessibleLabel: 'Impedance grid' },
+              { value: 'admittance', label: 'Y', accessibleLabel: 'Admittance grid' },
               { value: 'both', label: 'Both' },
             ]}
-            onChange={(value) => dispatch({ type: 'set-display', value })}
+            onChange={(value) => dispatch({ type: 'set-display-mode', value })}
           />
         </section>
         <aside className="controls-panel">
-          <section>
-            <h2>Load</h2>
-            <SegmentedControl
-              label="Entry representation"
-              value={state.loadRepresentation}
-              options={[
-                { value: 'impedance', label: 'Z' },
-                { value: 'admittance', label: 'Y' },
-                { value: 'reflection', label: 'Γ' },
-              ]}
-              onChange={(value: LoadRepresentation) =>
-                dispatch({ type: 'set-representation', value })
-              }
-            />
-            {activeLoad.kind === 'open' ? (
-              <div className="open-load">
-                <strong>Exact open circuit</strong>
-                <button
-                  type="button"
-                  onClick={() =>
-                    dispatch({
-                      type: 'set-load',
-                      load: { kind: 'finite', impedanceOhms: complex(50, 0) },
-                    })
-                  }
-                >
-                  Enter finite load
-                </button>
-              </div>
-            ) : (
-              <>
-                <NumberField
-                  label={representationLabels[0]!}
-                  value={representationValues[0]!}
-                  unit={state.loadRepresentation === 'reflection' ? '' : representationLabels[2]}
-                  onCommit={(value) =>
-                    state.loadRepresentation === 'impedance'
-                      ? commitImpedance('re', value)
-                      : updateRepresentation(value, representationValues[1]!)
-                  }
-                />
-                <NumberField
-                  label={representationLabels[1]!}
-                  value={representationValues[1]!}
-                  unit={state.loadRepresentation === 'reflection' ? '°' : representationLabels[2]}
-                  onCommit={(value) =>
-                    state.loadRepresentation === 'impedance'
-                      ? commitImpedance('im', value)
-                      : updateRepresentation(representationValues[0]!, value)
-                  }
-                />
-              </>
-            )}
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => dispatch({ type: 'set-load', load: { kind: 'open' } })}
-            >
-              Set exact open
-            </button>
-          </section>
-          <section>
-            <h2>Transmission line</h2>
-            <NumberField
-              label="Characteristic impedance"
-              value={state.characteristicImpedanceOhms}
-              unit="Ω"
-              isAllowed={(value) => value > 0}
-              errorMessage="Enter an impedance greater than zero."
-              onCommit={(value) => dispatch({ type: 'set-z0', value })}
-            />
-            <NumberField
-              label="Frequency"
-              value={state.frequencyHz / 1e6}
-              unit="MHz"
-              isAllowed={(value) => value > 0}
-              errorMessage="Enter a frequency greater than zero."
-              onCommit={(value) => dispatch({ type: 'set-frequency', value: value * 1e6 })}
-            />
-            <NumberField
-              label="Velocity factor"
-              value={state.velocityFactor}
-              isAllowed={(value) => value > 0 && value <= 1}
-              errorMessage="Enter a velocity factor above zero and no more than one."
-              onCommit={(value) => dispatch({ type: 'set-vf', value })}
-            />
-          </section>
-          <section>
-            <h2>Stub</h2>
-            <SegmentedControl
-              label="Termination"
-              value={state.termination}
-              options={[
-                { value: 'open', label: 'Open' },
-                { value: 'short', label: 'Short' },
-              ]}
-              onChange={(value) => dispatch({ type: 'set-termination', value })}
-            />
-          </section>
+          <LoadInputPanel
+            load={calculation.load}
+            characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
+            representation={preferences.loadRepresentation}
+            onRepresentationChange={(value) => dispatch({ type: 'set-load-representation', value })}
+            onLoadCommit={(load) => dispatch({ type: 'commit-load', load })}
+          />
+          <TransmissionLineInputs
+            characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
+            frequencyHz={calculation.frequencyHz}
+            velocityFactor={calculation.velocityFactor}
+            frequencyUnit={preferences.frequencyUnit}
+            lengthUnit={preferences.lengthUnit}
+            onCharacteristicImpedanceCommit={(value) =>
+              dispatch({ type: 'commit-characteristic-impedance', value })
+            }
+            onFrequencyCommit={(value) => dispatch({ type: 'commit-frequency', value })}
+            onVelocityFactorCommit={(value) => dispatch({ type: 'commit-velocity-factor', value })}
+            onFrequencyUnitChange={(value) => dispatch({ type: 'set-frequency-unit', value })}
+            onLengthUnitChange={(value) => dispatch({ type: 'set-length-unit', value })}
+          />
+          <StubControls
+            termination={calculation.termination}
+            onChange={(value) => dispatch({ type: 'set-termination', value })}
+          />
           <Disclosure title="Display and interaction">
             <label>
               Theme{' '}
               <select
-                value={state.theme}
+                value={preferences.theme}
                 onChange={(event) =>
                   dispatch({
                     type: 'set-theme',
-                    value: event.target.value as WorkspaceState['theme'],
+                    value: event.target.value as typeof preferences.theme,
                   })
                 }
               >
@@ -357,16 +236,20 @@ export function Workspace({ initialState, urlWarnings }: Props) {
             <label>
               <input
                 type="checkbox"
-                checked={state.animationEnabled}
-                onChange={() => dispatch({ type: 'toggle-animation' })}
+                checked={preferences.animationEnabled}
+                onChange={(event) =>
+                  dispatch({ type: 'set-animation-enabled', value: event.target.checked })
+                }
               />{' '}
               Animate matching sequence
             </label>
             <label>
               <input
                 type="checkbox"
-                checked={state.gridSnapping}
-                onChange={() => dispatch({ type: 'toggle-snap' })}
+                checked={preferences.gridSnapping}
+                onChange={(event) =>
+                  dispatch({ type: 'set-grid-snapping', value: event.target.checked })
+                }
               />{' '}
               Grid snapping
             </label>
@@ -375,8 +258,9 @@ export function Workspace({ initialState, urlWarnings }: Props) {
         <section className="results-panel">
           <SolutionResults
             result={result}
-            termination={state.termination}
-            selected={state.selectedSolution}
+            termination={calculation.termination}
+            selected={calculation.selectedSolution}
+            lengthUnit={preferences.lengthUnit}
             onSelect={(value) => dispatch({ type: 'select-solution', value })}
           />
           <aside className="practical-warning">

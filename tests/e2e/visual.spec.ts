@@ -6,10 +6,12 @@ test.beforeEach(async ({ page }, testInfo) => {
 });
 
 async function setChartMode(page: import('@playwright/test').Page, mode: 'Z' | 'Y' | 'Both') {
+  const accessibleName =
+    mode === 'Z' ? 'Impedance grid' : mode === 'Y' ? 'Admittance grid' : 'Both';
   await page
     .getByRole('group', { name: 'Chart grid' })
-    .getByRole('button', { name: mode, exact: true })
-    .click();
+    .getByRole('radio', { name: accessibleName, exact: true })
+    .check();
 }
 
 async function setTheme(page: import('@playwright/test').Page, theme: 'light' | 'dark') {

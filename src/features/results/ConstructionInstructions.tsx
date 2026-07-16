@@ -1,16 +1,26 @@
-import type { StubMatchSolution, StubTermination } from '../../rf';
-import { metersToFeet } from '../../rf';
+import type { LengthUnit } from '../../app/workspaceTypes';
+import { metersToFeet, type StubMatchSolution, type StubTermination } from '../../rf';
 import { Copy } from 'lucide-react';
 import { useState } from 'react';
+import { formatLength } from './lengthFormatting';
 export function ConstructionInstructions({
   solution,
   termination,
+  lengthUnit,
 }: {
   readonly solution: StubMatchSolution;
   readonly termination: StubTermination;
+  readonly lengthUnit: LengthUnit;
 }) {
   const [fallback, setFallback] = useState(false);
-  const instruction = `Move ${solution.feedlineDistanceMeters.toFixed(3)} m (${metersToFeet(solution.feedlineDistanceMeters).toFixed(2)} ft) toward the transmitter from the load and connect a ${termination}-circuited shunt stub ${solution.stubLengthMeters.toFixed(3)} m long.`;
+  const feedlineLength =
+    lengthUnit === 'm'
+      ? `${formatLength(solution.feedlineDistanceMeters, lengthUnit)} (${metersToFeet(
+          solution.feedlineDistanceMeters,
+        ).toFixed(2)} ft)`
+      : formatLength(solution.feedlineDistanceMeters, lengthUnit);
+  const stubLength = formatLength(solution.stubLengthMeters, lengthUnit);
+  const instruction = `Move ${feedlineLength} toward the transmitter from the load and connect a ${termination}-circuited shunt stub ${stubLength} long.`;
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(instruction);
@@ -22,11 +32,9 @@ export function ConstructionInstructions({
   return (
     <div>
       <p className="construction">
-        Move <strong>{solution.feedlineDistanceMeters.toFixed(3)} m</strong> (
-        {metersToFeet(solution.feedlineDistanceMeters).toFixed(2)} ft) toward the transmitter from
-        the load and connect a{' '}
+        Move <strong>{feedlineLength}</strong> toward the transmitter from the load and connect a{' '}
         <strong>
-          {termination}-circuited shunt stub {solution.stubLengthMeters.toFixed(3)} m
+          {termination}-circuited shunt stub {stubLength}
         </strong>{' '}
         long.
       </p>
