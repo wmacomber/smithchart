@@ -26,7 +26,7 @@
     "ci": "bun run format:check && bun run lint && bun run typecheck && bun run check:rf-boundary && bun run verify:references && bun run verify:no-runtime-network && bun run test && bun run build && bun run verify:assets && bun run verify:offline"
   },
   "dependencies": {
-    "lucide-react": "^1.24.0",
+    "lucide-react": "^1.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "vite-plugin-pwa": "^1.3.0"
@@ -47,7 +47,7 @@
     "prettier": "^3.9.5",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.64.0",
-    "vite": "^8.1.4",
+    "vite": "^8.1.5",
     "vitest": "^4.1.10"
   }
 }
