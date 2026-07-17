@@ -10,6 +10,10 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore(deps)'
+    ignore:
+      - dependency-name: typescript
+        versions:
+          - '7.x'
     groups:
       bun-minor-and-patch:
         patterns:
