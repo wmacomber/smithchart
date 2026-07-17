@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -58,6 +59,10 @@ export function useChartInteraction({
   const frameRef = useRef<number | null>(null);
   const pendingRef = useRef<Complex | null>(null);
   const transactionStartRef = useRef<Complex | null>(null);
+  const pointerTargetRef = useRef<HTMLDivElement | null>(null);
+  const windowPointerUpRef = useRef<((event: globalThis.PointerEvent) => void) | null>(null);
+  const windowPointerCancelRef = useRef<((event: globalThis.PointerEvent) => void) | null>(null);
+  const windowMouseUpRef = useRef<((event: MouseEvent) => void) | null>(null);
   const keyboardActiveRef = useRef(false);
   const [activeSource, setActiveSource] = useState<'pointer' | 'keyboard' | null>(null);
   const [hovered, setHovered] = useState(false);
@@ -78,11 +83,24 @@ export function useChartInteraction({
     pendingRef.current = null;
   };
 
+  const removeWindowPointerListeners = useCallback(() => {
+    if (windowPointerUpRef.current)
+      window.removeEventListener('pointerup', windowPointerUpRef.current, true);
+    if (windowPointerCancelRef.current)
+      window.removeEventListener('pointercancel', windowPointerCancelRef.current, true);
+    if (windowMouseUpRef.current)
+      window.removeEventListener('mouseup', windowMouseUpRef.current, true);
+    windowPointerUpRef.current = null;
+    windowPointerCancelRef.current = null;
+    windowMouseUpRef.current = null;
+  }, []);
+
   useEffect(
     () => () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      removeWindowPointerListeners();
     },
-    [],
+    [removeWindowPointerListeners],
   );
 
   const preview = (next: Complex) => {
@@ -102,16 +120,21 @@ export function useChartInteraction({
     });
   };
 
-  const pointFromEvent = (event: MarkerEvent): Complex | null => {
+  const pointFromClient = (clientX: number, clientY: number): Complex | null => {
     if (!boundsRef.current) return null;
-    const raw = clientPointToReflection({ x: event.clientX, y: event.clientY }, boundsRef.current);
+    const raw = clientPointToReflection({ x: clientX, y: clientY }, boundsRef.current);
     return raw ? constrainReflection(raw, snapPointer) : null;
   };
+
+  const pointFromEvent = (event: MarkerEvent): Complex | null =>
+    pointFromClient(event.clientX, event.clientY);
 
   const settlePointer = (target: HTMLDivElement, cancel: boolean) => {
     const pointerId = pointerIdRef.current;
     pointerIdRef.current = null;
+    pointerTargetRef.current = null;
     boundsRef.current = null;
+    removeWindowPointerListeners();
     cancelFrame();
     setActiveSource(null);
     if (cancel) {
@@ -136,12 +159,13 @@ export function useChartInteraction({
       ((event.pointerType === 'mouse' || event.pointerType === 'pen') && event.button !== 0)
     )
       return;
-    const svg = event.currentTarget.closest('svg');
+    const svg = event.currentTarget.closest('.smith-chart-stage')?.querySelector('svg');
     if (!svg) return;
     event.preventDefault();
     event.currentTarget.focus({ preventScroll: true });
     boundsRef.current = svg.getBoundingClientRect();
     pointerIdRef.current = event.pointerId;
+    pointerTargetRef.current = event.currentTarget;
     transactionStartRef.current = reflectionRef.current;
     setActiveSource('pointer');
     setAnnouncement('');
@@ -149,11 +173,41 @@ export function useChartInteraction({
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {
       pointerIdRef.current = null;
+      pointerTargetRef.current = null;
       boundsRef.current = null;
       transactionStartRef.current = null;
       setActiveSource(null);
       return;
     }
+    windowPointerUpRef.current = (nativeEvent) => {
+      if (pointerIdRef.current !== nativeEvent.pointerId || !pointerTargetRef.current) return;
+      const next =
+        pointFromClient(nativeEvent.clientX, nativeEvent.clientY) ?? reflectionRef.current;
+      cancelFrame();
+      reflectionRef.current = next;
+      callbacksRef.current.onCommit(next);
+      transactionStartRef.current = null;
+      setAnnouncement('Load marker adjustment committed.');
+      settlePointer(pointerTargetRef.current, false);
+    };
+    windowPointerCancelRef.current = (nativeEvent) => {
+      if (pointerIdRef.current !== nativeEvent.pointerId || !pointerTargetRef.current) return;
+      settlePointer(pointerTargetRef.current, true);
+    };
+    windowMouseUpRef.current = (nativeEvent) => {
+      if (pointerIdRef.current === null || !pointerTargetRef.current) return;
+      const next =
+        pointFromClient(nativeEvent.clientX, nativeEvent.clientY) ?? reflectionRef.current;
+      cancelFrame();
+      reflectionRef.current = next;
+      callbacksRef.current.onCommit(next);
+      transactionStartRef.current = null;
+      setAnnouncement('Load marker adjustment committed.');
+      settlePointer(pointerTargetRef.current, false);
+    };
+    window.addEventListener('pointerup', windowPointerUpRef.current, true);
+    window.addEventListener('pointercancel', windowPointerCancelRef.current, true);
+    window.addEventListener('mouseup', windowMouseUpRef.current, true);
     const next = pointFromEvent(event);
     if (next) preview(next);
   };

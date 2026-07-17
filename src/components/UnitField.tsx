@@ -1,6 +1,17 @@
 import { useId } from 'react';
 import { NumberField } from './NumberField';
 
+const SPOKEN_UNITS: Readonly<Record<string, string>> = {
+  Hz: 'hertz',
+  kHz: 'kilohertz',
+  MHz: 'megahertz',
+  GHz: 'gigahertz',
+  m: 'metres',
+  cm: 'centimetres',
+  ft: 'feet',
+  in: 'inches',
+};
+
 export function UnitField<T extends string>({
   label,
   value,
@@ -32,6 +43,8 @@ export function UnitField<T extends string>({
       <NumberField
         label={label}
         value={value}
+        unit={unit}
+        unitLabel={SPOKEN_UNITS[unit] ?? unit}
         onCommit={onCommit}
         isAllowed={isAllowed}
         errorMessage={errorMessage}
@@ -41,7 +54,12 @@ export function UnitField<T extends string>({
       />
       <label className="unit-select" htmlFor={id}>
         <span>{label} unit</span>
-        <select id={id} value={unit} onChange={(event) => onUnitChange(event.target.value as T)}>
+        <select
+          id={id}
+          data-focus-key={`${label}-unit`}
+          value={unit}
+          onChange={(event) => onUnitChange(event.target.value as T)}
+        >
           {units.map((option) => (
             <option key={option} value={option}>
               {option}

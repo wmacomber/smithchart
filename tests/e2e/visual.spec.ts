@@ -180,3 +180,24 @@ test('@visual responsive advanced panel', async ({ page }) => {
     { animations: 'disabled' },
   );
 });
+
+test('@visual keyboard focus on chart marker', async ({ page }) => {
+  await page.getByRole('slider', { name: 'Load marker' }).focus();
+  await expect(page.locator('.smith-chart-frame')).toHaveScreenshot('chart-marker-focus.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual invalid numeric field', async ({ page }) => {
+  await page.getByRole('textbox', { name: 'Resistance' }).fill('-');
+  await expect(page.locator('.controls-panel')).toHaveScreenshot('invalid-numeric-field.png', {
+    animations: 'disabled',
+  });
+});
+
+test('@visual fatal error boundary', async ({ page }) => {
+  await page.goto('/?test-error=render');
+  await expect(page.getByRole('alert')).toHaveScreenshot('fatal-error-boundary.png', {
+    animations: 'disabled',
+  });
+});

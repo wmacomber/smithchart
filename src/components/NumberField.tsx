@@ -6,6 +6,7 @@ interface Props {
   readonly label: string;
   readonly value: number;
   readonly unit?: string;
+  readonly unitLabel?: string;
   readonly onCommit: (value: number) => void;
   readonly isAllowed?: (value: number) => boolean;
   readonly errorMessage?: string;
@@ -26,6 +27,7 @@ export function NumberField({
   label,
   value,
   unit,
+  unitLabel,
   onCommit,
   isAllowed = () => true,
   errorMessage,
@@ -55,6 +57,7 @@ export function NumberField({
       ? errorMessage
       : DEFAULT_MESSAGES[draft.issue]
     : null;
+  const describedBy = [unit ? unitId : null, message ? errorId : null].filter(Boolean).join(' ');
 
   useEffect(() => {
     if (!fieldId || !onDraftValidityChange) return;
@@ -70,12 +73,13 @@ export function NumberField({
       <span className="field-control">
         <input
           id={id}
+          data-focus-key={fieldId ?? label}
           type="text"
           value={draft.raw}
           inputMode="decimal"
           aria-invalid={message ? true : undefined}
           aria-errormessage={message ? errorId : undefined}
-          aria-describedby={unit ? unitId : undefined}
+          aria-describedby={describedBy || undefined}
           onChange={(event) =>
             setDraft(parseNumericInput(event.target.value, draft.committed, isAllowed))
           }
@@ -90,7 +94,8 @@ export function NumberField({
         />
         {unit && (
           <span id={unitId} className="field-unit">
-            {unit}
+            <span aria-hidden="true">{unit}</span>
+            <span className="sr-only">{unitLabel ?? unit}</span>
           </span>
         )}
       </span>

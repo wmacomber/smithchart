@@ -714,6 +714,7 @@ Evaluate these possible additions:
 - PWA installation
 - Localization
 - Saved local workspaces
+- Automatic generation of circuit schematics for PCB-mounted or PCB-in-built antenna stubs that could be built by https://jlcpcb.com/ or https://www.pcbway.com/ at the click of a button
 
 For each candidate:
 

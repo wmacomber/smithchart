@@ -43,3 +43,31 @@ test('@keyboard fine movement bypasses pointer snapping', async ({ page }) => {
   await expect(marker).toHaveAttribute('aria-valuenow', '0.002');
   await marker.press('Enter');
 });
+
+test('@keyboard desktop DOM order follows controls, chart, results', async ({ page }) => {
+  await page.goto('/');
+  const resistance = page.getByRole('textbox', { name: 'Resistance' });
+  const marker = page.getByRole('slider', { name: 'Load marker' });
+  const selected = page
+    .getByRole('article')
+    .filter({ hasText: 'Solution A' })
+    .getByRole('button', { name: 'Selected' });
+  const markerHandle = await marker.elementHandle();
+  const selectedHandle = await selected.elementHandle();
+  if (!markerHandle || !selectedHandle)
+    throw new Error('Desktop focus-order controls are missing.');
+  expect(
+    await resistance.evaluate(
+      (left, right) =>
+        Boolean(left.compareDocumentPosition(right as Node) & Node.DOCUMENT_POSITION_FOLLOWING),
+      markerHandle,
+    ),
+  ).toBe(true);
+  expect(
+    await marker.evaluate(
+      (left, right) =>
+        Boolean(left.compareDocumentPosition(right as Node) & Node.DOCUMENT_POSITION_FOLLOWING),
+      selectedHandle,
+    ),
+  ).toBe(true);
+});

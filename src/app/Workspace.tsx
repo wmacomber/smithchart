@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Redo2, Undo2 } from 'lucide-react';
 import { ChartDescription } from '../chart/ChartDescription';
 import { SmithChart } from '../chart/SmithChart';
@@ -45,6 +45,30 @@ function initializeHistory(initialState: WorkspaceState): WorkspaceHistory {
   };
 }
 
+function useMobileLayout(): boolean {
+  const [mobile, setMobile] = useState(() => matchMedia('(max-width: 800px)').matches);
+  useEffect(() => {
+    const query = matchMedia('(max-width: 800px)');
+    const update = () => {
+      const focusKey =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement.dataset.focusKey
+          : undefined;
+      setMobile(query.matches);
+      if (focusKey) {
+        requestAnimationFrame(() => {
+          document
+            .querySelector<HTMLElement>(`[data-focus-key="${CSS.escape(focusKey)}"]`)
+            ?.focus({ preventScroll: true });
+        });
+      }
+    };
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  return mobile;
+}
+
 export function Workspace({ initialState, urlWarnings }: Props) {
   const [history, dispatch] = useReducer(historyReducer, initialState, initializeHistory);
   const state = history.present;
@@ -66,8 +90,10 @@ export function Workspace({ initialState, urlWarnings }: Props) {
   const [tourToken, setTourToken] = useState(0);
   const [educationTopic, setEducationTopic] = useState<LearnTopic | null>(null);
   const [draftIssues, setDraftIssues] = useState<ReadonlySet<string>>(() => new Set());
-  const [educationAnnouncement, setEducationAnnouncement] = useState('');
+  const [accessibilityAnnouncement, setAccessibilityAnnouncement] = useState('');
+  const previousStale = useRef(false);
   const stale = draftIssues.size > 0;
+  const mobileLayout = useMobileLayout();
   const exportMetadata: ChartExportMetadata = {
     schemaVersion: 1,
     application: { name: 'Smith Match', version: __APP_VERSION__ },
@@ -129,16 +155,16 @@ export function Workspace({ initialState, urlWarnings }: Props) {
     (example: ExamplePreset) => {
       act({ type: 'apply-example', example });
       setExamplesOpen(false);
-      setEducationAnnouncement(`${example.name} loaded. ${example.learningGoal}`);
+      setAccessibilityAnnouncement(`${example.name} loaded. ${example.learningGoal}`);
     },
-    [act, setEducationAnnouncement, setExamplesOpen],
+    [act, setAccessibilityAnnouncement, setExamplesOpen],
   );
 
   const showTopic = useCallback(
     (topic: LearnTopic) => {
       setLearnOpen(false);
       setEducationTopic(topic);
-      setEducationAnnouncement(
+      setAccessibilityAnnouncement(
         `Showing ${EDUCATION_TARGET_LABELS[topic.chartTarget]} on the chart.`,
       );
       requestAnimationFrame(() => {
@@ -150,8 +176,18 @@ export function Workspace({ initialState, urlWarnings }: Props) {
         chart?.focus({ preventScroll: true });
       });
     },
-    [setEducationAnnouncement, setEducationTopic, setLearnOpen],
+    [setAccessibilityAnnouncement, setEducationTopic, setLearnOpen],
   );
+
+  useEffect(() => {
+    if (previousStale.current === stale) return;
+    previousStale.current = stale;
+    setAccessibilityAnnouncement(
+      stale
+        ? 'Showing last valid calculation. Correct the invalid input to enable construction actions.'
+        : 'Input corrected. Construction actions are available.',
+    );
+  }, [stale]);
 
   useEffect(() => {
     const search = serializeUrlState(calculation);
@@ -169,8 +205,98 @@ export function Workspace({ initialState, urlWarnings }: Props) {
     );
   }, []);
 
+  const controlsPanel = (
+    <aside className="controls-panel" key="controls-panel">
+      <LoadInputPanel
+        load={activeLoad}
+        characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
+        representation={preferences.loadRepresentation}
+        onRepresentationChange={(value) => act({ type: 'set-load-representation', value })}
+        onLoadCommit={(load) => {
+          act({ type: 'commit-load', load });
+          setAccessibilityAnnouncement('Load updated. Calculation results refreshed.');
+        }}
+        onDraftValidityChange={reportDraftValidity}
+      />
+      <TransmissionLineInputs
+        characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
+        frequencyHz={calculation.frequencyHz}
+        velocityFactor={calculation.velocityFactor}
+        frequencyUnit={preferences.frequencyUnit}
+        lengthUnit={preferences.lengthUnit}
+        onCharacteristicImpedanceCommit={(value) => {
+          act({ type: 'commit-characteristic-impedance', value });
+          setAccessibilityAnnouncement('Characteristic impedance updated.');
+        }}
+        onFrequencyCommit={(value) => {
+          act({ type: 'commit-frequency', value });
+          setAccessibilityAnnouncement('Frequency updated.');
+        }}
+        onVelocityFactorCommit={(value) => {
+          act({ type: 'commit-velocity-factor', value });
+          setAccessibilityAnnouncement('Velocity factor updated.');
+        }}
+        onFrequencyUnitChange={(value) => {
+          act({ type: 'set-frequency-unit', value });
+          setAccessibilityAnnouncement(`Frequency unit changed to ${value}.`);
+        }}
+        onLengthUnitChange={(value) => {
+          act({ type: 'set-length-unit', value });
+          setAccessibilityAnnouncement(`Length unit changed to ${value}.`);
+        }}
+        onDraftValidityChange={reportDraftValidity}
+      />
+      <StubControls
+        termination={calculation.termination}
+        onChange={(value) => {
+          act({ type: 'set-termination', value });
+          setAccessibilityAnnouncement(`${value} stub termination selected.`);
+        }}
+      />
+      <Disclosure title="Display and interaction">
+        <label>
+          Theme{' '}
+          <select
+            value={preferences.theme}
+            onChange={(event) =>
+              act({
+                type: 'set-theme',
+                value: event.target.value as typeof preferences.theme,
+              })
+            }
+          >
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.animationEnabled}
+            onChange={(event) =>
+              act({ type: 'set-animation-enabled', value: event.target.checked })
+            }
+          />{' '}
+          Animate matching sequence
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.gridSnapping}
+            onChange={(event) => act({ type: 'set-grid-snapping', value: event.target.checked })}
+          />{' '}
+          Snap pointer to 0.02 Γ grid
+        </label>
+      </Disclosure>
+    </aside>
+  );
+
   return (
     <>
+      <a className="skip-link" href="#workspace">
+        Skip to matching workspace
+      </a>
       <header className="instrument-bar">
         <div>
           <span className="eyebrow">RF matching instrument</span>
@@ -181,14 +307,20 @@ export function Workspace({ initialState, urlWarnings }: Props) {
             <button
               type="button"
               disabled={!history.past.length}
-              onClick={() => act({ type: 'undo' })}
+              onClick={() => {
+                act({ type: 'undo' });
+                setAccessibilityAnnouncement('Previous committed calculation restored.');
+              }}
             >
               <Undo2 size={16} aria-hidden="true" /> Undo
             </button>
             <button
               type="button"
               disabled={!history.future.length}
-              onClick={() => act({ type: 'redo' })}
+              onClick={() => {
+                act({ type: 'redo' });
+                setAccessibilityAnnouncement('Next committed calculation restored.');
+              }}
             >
               <Redo2 size={16} aria-hidden="true" /> Redo
             </button>
@@ -243,10 +375,12 @@ export function Workspace({ initialState, urlWarnings }: Props) {
         onDismiss={() => act({ type: 'set-first-use-dismissed', value: true })}
         onLoadExample={() => applyExample(ANTENNA_EXAMPLE)}
       />
-      <span className="sr-only" aria-live="polite">
-        {educationAnnouncement}
+      <span className="sr-only" aria-live="polite" aria-atomic="true" data-app-status>
+        {accessibilityAnnouncement}
       </span>
       <main
+        id="workspace"
+        tabIndex={-1}
         className={`workspace ${preferences.animationEnabled ? 'motion-enabled' : ''} ${state.previewLoad ? 'preview-active' : ''}`}
       >
         <PrintWorksheetSummary
@@ -255,6 +389,7 @@ export function Workspace({ initialState, urlWarnings }: Props) {
           stale={stale}
           version={__APP_VERSION__}
         />
+        {!mobileLayout && controlsPanel}
         <section className="chart-panel">
           <SmithChart
             loadReflection={reflection}
@@ -273,12 +408,13 @@ export function Workspace({ initialState, urlWarnings }: Props) {
                 load: reflectionToLoad(value, calculation.characteristicImpedanceOhms),
               })
             }
-            onLoadCommit={(value) =>
+            onLoadCommit={(value) => {
               act({
                 type: 'commit-load',
                 load: reflectionToLoad(value, calculation.characteristicImpedanceOhms),
-              })
-            }
+              });
+              setAccessibilityAnnouncement('Load marker adjustment committed.');
+            }}
             onLoadCancel={() => act({ type: 'cancel-preview' })}
             educationTarget={educationTopic?.chartTarget}
             onEducationDismiss={() => setEducationTopic(null)}
@@ -290,9 +426,12 @@ export function Workspace({ initialState, urlWarnings }: Props) {
                 : complex(Number.POSITIVE_INFINITY, 0)
             }
             result={result}
+            characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
+            reflection={reflection}
             selectedSolution={calculation.selectedSolution}
             solutionView={preferences.solutionView}
             termination={calculation.termination}
+            lengthUnit={preferences.lengthUnit}
           />
           <SegmentedControl
             label="Chart grid"
@@ -302,7 +441,10 @@ export function Workspace({ initialState, urlWarnings }: Props) {
               { value: 'admittance', label: 'Y', accessibleLabel: 'Admittance grid' },
               { value: 'both', label: 'Both' },
             ]}
-            onChange={(value) => act({ type: 'set-display-mode', value })}
+            onChange={(value) => {
+              act({ type: 'set-display-mode', value });
+              setAccessibilityAnnouncement(`Chart grid changed to ${value}.`);
+            }}
           />
           {result.status === 'solved' && (
             <SolutionComparison
@@ -310,78 +452,22 @@ export function Workspace({ initialState, urlWarnings }: Props) {
               selected={calculation.selectedSolution}
               view={preferences.solutionView}
               lengthUnit={preferences.lengthUnit}
-              onSelect={(value) => act({ type: 'select-solution', value })}
-              onViewChange={(value) => act({ type: 'set-solution-view', value })}
+              onSelect={(value) => {
+                act({ type: 'select-solution', value });
+                setAccessibilityAnnouncement(`Solution ${value} selected.`);
+              }}
+              onViewChange={(value) => {
+                act({ type: 'set-solution-view', value });
+                setAccessibilityAnnouncement(
+                  value === 'overlay'
+                    ? 'Both matching paths shown on chart.'
+                    : `Only solution ${calculation.selectedSolution} path shown on chart.`,
+                );
+              }}
             />
           )}
         </section>
-        <aside className="controls-panel">
-          <LoadInputPanel
-            load={activeLoad}
-            characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
-            representation={preferences.loadRepresentation}
-            onRepresentationChange={(value) => act({ type: 'set-load-representation', value })}
-            onLoadCommit={(load) => act({ type: 'commit-load', load })}
-            onDraftValidityChange={reportDraftValidity}
-          />
-          <TransmissionLineInputs
-            characteristicImpedanceOhms={calculation.characteristicImpedanceOhms}
-            frequencyHz={calculation.frequencyHz}
-            velocityFactor={calculation.velocityFactor}
-            frequencyUnit={preferences.frequencyUnit}
-            lengthUnit={preferences.lengthUnit}
-            onCharacteristicImpedanceCommit={(value) =>
-              act({ type: 'commit-characteristic-impedance', value })
-            }
-            onFrequencyCommit={(value) => act({ type: 'commit-frequency', value })}
-            onVelocityFactorCommit={(value) => act({ type: 'commit-velocity-factor', value })}
-            onFrequencyUnitChange={(value) => act({ type: 'set-frequency-unit', value })}
-            onLengthUnitChange={(value) => act({ type: 'set-length-unit', value })}
-            onDraftValidityChange={reportDraftValidity}
-          />
-          <StubControls
-            termination={calculation.termination}
-            onChange={(value) => act({ type: 'set-termination', value })}
-          />
-          <Disclosure title="Display and interaction">
-            <label>
-              Theme{' '}
-              <select
-                value={preferences.theme}
-                onChange={(event) =>
-                  act({
-                    type: 'set-theme',
-                    value: event.target.value as typeof preferences.theme,
-                  })
-                }
-              >
-                <option value="system">System</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={preferences.animationEnabled}
-                onChange={(event) =>
-                  act({ type: 'set-animation-enabled', value: event.target.checked })
-                }
-              />{' '}
-              Animate matching sequence
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={preferences.gridSnapping}
-                onChange={(event) =>
-                  act({ type: 'set-grid-snapping', value: event.target.checked })
-                }
-              />{' '}
-              Snap pointer to 0.02 Γ grid
-            </label>
-          </Disclosure>
-        </aside>
+        {mobileLayout && result.status !== 'solved' && controlsPanel}
         <section className="results-panel">
           <SolutionResults
             result={result}
@@ -390,7 +476,13 @@ export function Workspace({ initialState, urlWarnings }: Props) {
             lengthUnit={preferences.lengthUnit}
             calculation={calculation}
             stale={stale}
-            onSelect={(value) => act({ type: 'select-solution', value })}
+            interposedControls={
+              mobileLayout && result.status === 'solved' ? controlsPanel : undefined
+            }
+            onSelect={(value) => {
+              act({ type: 'select-solution', value });
+              setAccessibilityAnnouncement(`Solution ${value} selected.`);
+            }}
             onLoadMismatch={() =>
               applyExample(EXAMPLES.find((example) => example.id === 'resistive')!)
             }

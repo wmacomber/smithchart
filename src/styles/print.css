@@ -111,7 +111,6 @@
   [data-layer='interaction-overlay'],
   .marker-hit-container,
   .marker-hit-target,
-  .load-marker-focus-ring,
   .load-marker-tooltip,
   .sr-only-svg {
     display: none;

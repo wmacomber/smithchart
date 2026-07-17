@@ -22,8 +22,12 @@ Context help uses real buttons and `role="tooltip"` content. It opens through ho
 
 Incomplete numeric drafts retain the committed chart but expose “Showing last valid calculation” and disable copy, SVG export, and share. Matched, active/no-passive, invalid, and numerical-failure results retain distinct headings and actions. Construction warnings appear only for solved constructions.
 
-## Motion and manual checks
+## Motion and automated checks
 
 Marker movement has no interpolation or inertia. Matching-path animation pauses during manipulation. User animation preference and `prefers-reduced-motion` disable optional sequence motion and immediately expose final diagram. Focus remains visible through SVG-native and forced-color rings.
 
-Automated checks cover accessible name/value/description, keyboard transaction behavior, target size, reduced motion, and Chromium/Firefox/WebKit interaction. Release review must also exercise iOS Safari with VoiceOver and Android Chrome with TalkBack because desktop touch emulation cannot validate assistive-touch slider gestures.
+Automated checks cover accessible name/value/description, keyboard transaction behavior, unit and error association, concise live regions, target size, reduced motion, forced colors, reflow, and Chromium/Firefox/WebKit interaction. Project release criteria do not require manual screen-reader or assistive-technology validation; accessibility-tree and ARIA assertions are the compatibility evidence for this phase.
+
+Runtime marker interaction uses an HTML slider positioned over SVG geometry. This avoids cross-browser `foreignObject` focus and accessibility-tree differences while exported SVG retains its title, description, and static marker geometry.
+
+The visible Chart summary disclosure provides physical and normalized load, reflection coefficient, path selection, both junctions, lengths, direction, termination, and residual. Solved, matched, passive-limit, invalid, and numerical-failure states use distinct prose.

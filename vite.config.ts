@@ -28,5 +28,8 @@ export default defineConfig({
       },
     }),
   ],
-  define: { __APP_VERSION__: JSON.stringify(packageJson.version) },
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+    __E2E_TEST_HOOKS__: JSON.stringify(process.env.E2E_TEST_HOOKS === '1'),
+  },
 });

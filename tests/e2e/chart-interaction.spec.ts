@@ -10,7 +10,11 @@ async function dragMarker(page: Page, chartX: number, chartY: number, release = 
   const targetY = chartBox.y + (chartBox.height - 400 * scale) / 2 + chartY * scale;
   await page.mouse.down();
   await page.mouse.move(targetX, targetY, { steps: 4 });
-  if (release) await page.mouse.up();
+  if (release) {
+    await expect(marker).toHaveAttribute('data-active', 'true');
+    await page.mouse.up();
+    await expect(marker).not.toHaveAttribute('data-active', 'true');
+  }
 }
 
 test('@interaction mouse preview synchronizes tooltip and fields, then commits once', async ({
@@ -37,7 +41,8 @@ test('@interaction pointer capture commits release outside chart boundary', asyn
   await page.goto('/');
   await expect(page).toHaveURL(/v=1/);
   const initialUrl = page.url();
-  await dragMarker(page, 600, 200);
+  // Leave the 400-unit SVG without approaching the browser viewport edge in controls-first layout.
+  await dragMarker(page, 450, 200);
   await expect(page.getByRole('slider', { name: 'Load marker' })).toHaveAttribute(
     'aria-valuenow',
     '1',

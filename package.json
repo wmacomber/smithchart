@@ -20,9 +20,10 @@
     "verify:references": "python3 scripts/verify-reference-cases.py --fixtures tests/reference-cases",
     "verify:no-runtime-network": "node scripts/verify-no-runtime-network.mjs",
     "verify:offline": "node scripts/verify-offline.mjs",
+    "verify:assets": "node scripts/verify-asset-budgets.mjs",
     "verify:reproducible-build": "node scripts/verify-reproducible-build.mjs",
     "licenses": "node scripts/dependency-license-report.mjs",
-    "ci": "bun run format:check && bun run lint && bun run typecheck && bun run check:rf-boundary && bun run verify:references && bun run verify:no-runtime-network && bun run test && bun run build && bun run verify:offline"
+    "ci": "bun run format:check && bun run lint && bun run typecheck && bun run check:rf-boundary && bun run verify:references && bun run verify:no-runtime-network && bun run test && bun run build && bun run verify:assets && bun run verify:offline"
   },
   "dependencies": {
     "lucide-react": "^1.24.0",

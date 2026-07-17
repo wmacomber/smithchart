@@ -1,3 +1,4 @@
+import { Fragment, type ReactNode } from 'react';
 import type { CalculationState, LengthUnit } from '../../app/workspaceTypes';
 import { ResultCard } from '../../components/ResultCard';
 import { HelpTip } from '../../components/Tooltip';
@@ -14,6 +15,7 @@ export function SolutionResults({
   stale = false,
   onSelect,
   onLoadMismatch,
+  interposedControls,
 }: {
   readonly result: StubMatchResult;
   readonly termination: StubTermination;
@@ -23,6 +25,7 @@ export function SolutionResults({
   readonly stale?: boolean;
   readonly onSelect: (id: 'A' | 'B') => void;
   readonly onLoadMismatch: () => void;
+  readonly interposedControls?: ReactNode;
 }) {
   if (result.status === 'matched')
     return (
@@ -72,53 +75,60 @@ export function SolutionResults({
         </dl>
       </section>
     );
+  const orderedSolutions = interposedControls
+    ? [...result.solutions].sort((left, right) =>
+        left.id === selected ? -1 : right.id === selected ? 1 : 0,
+      )
+    : result.solutions;
   return (
-    <section className="solutions" aria-live="polite">
+    <section className="solutions">
       {stale && (
         <p className="stale-calculation" role="status">
           Showing last valid calculation. Correct the highlighted input to enable construction
           actions.
         </p>
       )}
-      {result.solutions.map((solution) => (
-        <ResultCard
-          key={solution.id}
-          title={`Solution ${solution.id}`}
-          solutionId={solution.id}
-          selected={selected === solution.id}
-          onSelect={() => onSelect(solution.id)}
-        >
-          <ConstructionInstructions
-            solution={solution}
-            termination={termination}
-            lengthUnit={lengthUnit}
+      {orderedSolutions.map((solution, index) => (
+        <Fragment key={solution.id}>
+          <ResultCard
+            title={`Solution ${solution.id}`}
+            solutionId={solution.id}
             selected={selected === solution.id}
-            calculation={calculation}
-            disabled={stale}
-          />
-          <p className="secondary-lengths">
-            Electrical lengths{' '}
-            <HelpTip
-              label="wavelengths and degrees"
-              text="λ is wavelength; 360 degrees equals one wavelength. These phase lengths do not change when display units change."
+            onSelect={() => onSelect(solution.id)}
+          >
+            <ConstructionInstructions
+              solution={solution}
+              termination={termination}
+              lengthUnit={lengthUnit}
+              selected={selected === solution.id}
+              calculation={calculation}
+              disabled={stale}
             />
-            <br />
-            Feed {solution.feedlineDistanceWavelengths.toFixed(5)} λ ·{' '}
-            {solution.feedlineDistanceDegrees.toFixed(2)}°<br />
-            Stub {solution.stubLengthWavelengths.toFixed(5)} λ ·{' '}
-            {solution.stubElectricalDegrees.toFixed(2)}°
-          </p>
-          <p className="residual-summary">
-            Final |Γ| {solution.diagnostics.resultReflectionMagnitude.toExponential(3)} ·{' '}
-            {solution.diagnostics.resultReflectionMagnitude <= 1e-8
-              ? 'Verified ≤ 1×10⁻⁸'
-              : 'Verification limit exceeded'}{' '}
-            <HelpTip
-              label="final reflection magnitude"
-              text="Final |Γ| is the ideal numerical residual. Construction tolerances and loss are not modeled."
-            />
-          </p>
-        </ResultCard>
+            <p className="secondary-lengths">
+              Electrical lengths{' '}
+              <HelpTip
+                label="wavelengths and degrees"
+                text="λ is wavelength; 360 degrees equals one wavelength. These phase lengths do not change when display units change."
+              />
+              <br />
+              Feed {solution.feedlineDistanceWavelengths.toFixed(5)} λ ·{' '}
+              {solution.feedlineDistanceDegrees.toFixed(2)}°<br />
+              Stub {solution.stubLengthWavelengths.toFixed(5)} λ ·{' '}
+              {solution.stubElectricalDegrees.toFixed(2)}°
+            </p>
+            <p className="residual-summary">
+              Final |Γ| {solution.diagnostics.resultReflectionMagnitude.toExponential(3)} ·{' '}
+              {solution.diagnostics.resultReflectionMagnitude <= 1e-8
+                ? 'Verified ≤ 1×10⁻⁸'
+                : 'Verification limit exceeded'}{' '}
+              <HelpTip
+                label="final reflection magnitude"
+                text="Final |Γ| is the ideal numerical residual. Construction tolerances and loss are not modeled."
+              />
+            </p>
+          </ResultCard>
+          {index === 0 && interposedControls}
+        </Fragment>
       ))}
       <AdvancedResultsPanel key={selected} solutions={result.solutions} selected={selected} />
       <ol className="matching-steps">

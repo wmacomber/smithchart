@@ -7,6 +7,9 @@ test('@workspace synchronizes impedance, admittance, and reflection entry', asyn
   await page.getByRole('radio', { name: 'Admittance', exact: true }).check();
   await page.getByRole('textbox', { name: 'Conductance' }).fill('0.02');
   await page.getByRole('textbox', { name: 'Conductance' }).press('Enter');
+  await expect
+    .poll(() => Number(new URL(page.url()).searchParams.get('r')))
+    .toBeCloseTo(35.35350466424301, 12);
   await page.getByRole('textbox', { name: 'Susceptance' }).fill('0');
   await page.getByRole('textbox', { name: 'Susceptance' }).press('Enter');
   await expect.poll(() => Number(new URL(page.url()).searchParams.get('r'))).toBeCloseTo(50, 12);
@@ -28,7 +31,7 @@ test('@workspace invalid draft preserves committed calculation', async ({ page }
   await expect(resistance).toHaveAttribute('aria-invalid', 'true');
   await expect(page).toHaveURL(/r=35&x=-22/);
   await expect(page.getByRole('heading', { name: 'Solution A' })).toBeVisible();
-  await expect(page.getByText('Showing last valid calculation')).toBeVisible();
+  await expect(page.locator('.stale-calculation')).toContainText('Showing last valid calculation');
   await expect(page.getByRole('button', { name: 'Copy construction instructions' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Export SVG' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Share' })).toBeDisabled();

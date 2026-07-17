@@ -1,0 +1,73 @@
+prefix_rule(
+    pattern = [
+        "bun",
+        "run",
+        [
+            "test",
+            "test:rf",
+            "test:chart",
+            "test:e2e",
+            "test:e2e:pages",
+            "ci",
+            "build",
+            "lint",
+            "typecheck",
+            "format:check",
+            "check:rf-boundary",
+            "verify:references",
+            "verify:no-runtime-network",
+            "verify:offline",
+            "verify:assets",
+        ],
+    ],
+    decision = "allow",
+    justification = "Trusted smithchart build and verification commands.",
+    match = [
+        "bun run test",
+        "bun run test:e2e -- --project=chromium",
+        "bun run test:e2e -- --project=webkit tests/e2e/accessibility.spec.ts",
+        "bun run ci",
+    ],
+    not_match = [
+        "bun run dev",
+        "bun install",
+        "bun add @example/package",
+    ],
+)
+
+# Commands explicitly persisted with "Approve Similar" during Phase 7B.
+# Keep the complete shell payload fixed; never approve arbitrary `/bin/bash -lc`.
+prefix_rule(
+    pattern = [
+        "/bin/bash",
+        "-lc",
+        [
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=chromium --workers=1 tests/e2e/accessibility.spec.ts tests/e2e/browsers.spec.ts tests/e2e/performance.spec.ts tests/e2e/keyboard.spec.ts tests/e2e/chart-interaction.spec.ts",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=chromium --workers=1 tests/e2e/visual.spec.ts --grep 'keyboard focus' --update-snapshots",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=chromium --workers=1 tests/e2e/visual.spec.ts --grep 'keyboard focus|forced-color' --update-snapshots",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=chromium --workers=1 tests/e2e/visual.spec.ts --grep 'keyboard focus|forced-color'",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=chromium --workers=1 tests/e2e/visual.spec.ts --update-snapshots",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=firefox --workers=1 tests/e2e/chart-interaction.spec.ts --grep 'release outside'",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=firefox --workers=1 tests/e2e/chart-interaction.spec.ts",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=firefox --workers=3 --grep-invert @visual",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=mobile-chromium --workers=1",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=mobile-webkit --workers=1",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=webkit --workers=3 --grep-invert @visual",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --workers=2 --project=chromium --project=firefox tests/e2e/workspace.spec.ts tests/e2e/chart-interaction.spec.ts",
+            "TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --workers=3",
+        ],
+    ],
+    decision = "allow",
+    justification = "Playwright commands explicitly trusted during Phase 7B verification.",
+    match = [
+        "/bin/bash -lc \"TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --workers=3\"",
+        "/bin/bash -lc \"TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=mobile-webkit --workers=1\"",
+        "/bin/bash -lc \"TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=firefox --workers=1 tests/e2e/chart-interaction.spec.ts --grep 'release outside'\"",
+        "/bin/bash -lc \"TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run test:e2e -- --project=chromium --workers=1 tests/e2e/visual.spec.ts --update-snapshots\"",
+    ],
+    not_match = [
+        "/bin/bash -lc \"arbitrary-command\"",
+        "/bin/bash -lc \"TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun run dev\"",
+        "/bin/bash -lc \"TMPDIR=/tmp PLAYWRIGHT_HTML_OPEN=never bun install\"",
+    ],
+)

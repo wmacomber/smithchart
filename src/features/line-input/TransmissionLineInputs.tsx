@@ -43,6 +43,7 @@ export function TransmissionLineInputs({
         label="Characteristic impedance (Z₀)"
         value={characteristicImpedanceOhms}
         unit="Ω"
+        unitLabel="ohms"
         isAllowed={(value) => value > 0}
         errorMessage="Enter an impedance greater than zero."
         onCommit={onCharacteristicImpedanceCommit}
@@ -83,6 +84,7 @@ export function TransmissionLineInputs({
         </span>
         <select
           aria-label="Length unit"
+          data-focus-key="length-unit"
           value={lengthUnit}
           onChange={(event) => onLengthUnitChange(event.target.value as LengthUnit)}
         >

@@ -80,6 +80,7 @@ export function LoadInputPanel({
             label={labels[0]}
             value={values.first}
             unit={labels[2]}
+            unitLabel={labels[2] === 'Ω' ? 'ohms' : labels[2] === 'S' ? 'siemens' : undefined}
             isAllowed={representation === 'reflection' ? (value) => value >= 0 : undefined}
             errorMessage="Enter a magnitude of zero or greater."
             onCommit={(value) => commitPart('first', value)}
@@ -98,6 +99,15 @@ export function LoadInputPanel({
             label={labels[1]}
             value={values.second}
             unit={representation === 'reflection' ? '°' : labels[2]}
+            unitLabel={
+              representation === 'reflection'
+                ? 'degrees'
+                : labels[2] === 'Ω'
+                  ? 'ohms'
+                  : labels[2] === 'S'
+                    ? 'siemens'
+                    : undefined
+            }
             onCommit={(value) => commitPart('second', value)}
             helpText={
               representation === 'impedance'

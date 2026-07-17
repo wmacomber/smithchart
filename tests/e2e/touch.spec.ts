@@ -14,7 +14,8 @@ test('touch target remains operable', async ({ page }) => {
 test('touch drag previews and commits the load', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'CDP touch injection is Chromium-only.');
   await page.goto('/?v=1&r=35&x=-22&z0=50&f=14.2MHz&vf=.66&stub=shunt-short&solution=A');
-  const markerBox = await page.getByRole('slider', { name: 'Load marker' }).boundingBox();
+  const marker = page.getByRole('slider', { name: 'Load marker' });
+  const markerBox = await marker.boundingBox();
   const chartBox = await page.locator('.smith-chart').boundingBox();
   if (!markerBox || !chartBox) throw new Error('Chart touch geometry is unavailable.');
   const startX = markerBox.x + markerBox.width / 2;
@@ -27,12 +28,12 @@ test('touch drag previews and commits the load', async ({ page, browserName }) =
     type: 'touchStart',
     touchPoints: [{ x: startX, y: startY, id: 1, radiusX: 2, radiusY: 2, force: 1 }],
   });
-  await expect(page.locator('.marker-control')).toHaveAttribute('data-active', 'true');
+  await expect(marker).toHaveAttribute('data-active', 'true');
   await session.send('Input.dispatchTouchEvent', {
     type: 'touchMove',
     touchPoints: [{ x: targetX, y: targetY, id: 1, radiusX: 2, radiusY: 2, force: 1 }],
   });
-  await expect(page.locator('.marker-control')).toHaveAttribute('data-active', 'true');
+  await expect(marker).toHaveAttribute('data-active', 'true');
   await expect
     .poll(async () => Number(await page.getByRole('textbox', { name: 'Resistance' }).inputValue()))
     .toBeCloseTo(50, 0);

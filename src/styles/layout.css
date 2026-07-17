@@ -62,7 +62,7 @@
 }
 .workspace {
   display: grid;
-  grid-template-columns: minmax(420px, 1fr) minmax(290px, 370px);
+  grid-template-columns: minmax(290px, 370px) minmax(420px, 1fr);
   gap: 1rem;
   max-width: 1500px;
   margin: auto;
@@ -82,8 +82,29 @@
   padding: 1rem;
   min-width: 0;
 }
+.chart-summary {
+  margin-top: 0.65rem;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+.chart-summary summary {
+  min-height: 44px;
+}
+.chart-summary p {
+  max-width: 80ch;
+  margin: 0.7rem 0 0;
+  line-height: 1.55;
+}
 .smith-chart-frame {
   width: min(100%, 740px);
+  margin: auto;
+}
+.smith-chart-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
   margin: auto;
 }
 .smith-chart-frame:focus {
@@ -180,32 +201,42 @@
   pointer-events: none;
   filter: drop-shadow(0 2px 3px rgb(0 0 0/0.3));
 }
-.marker-hit-container {
-  overflow: visible;
-}
 .marker-hit-target {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  z-index: 4;
+  left: var(--marker-x);
+  top: var(--marker-y);
+  width: 15%;
+  min-width: 44px;
+  max-width: 60px;
+  aspect-ratio: 1;
+  min-height: 44px;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 0;
   border-radius: 50%;
   background: transparent;
   cursor: grab;
   touch-action: none;
 }
+.marker-interaction-plane {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(100%, 70vh);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.marker-interaction-plane .marker-hit-target {
+  pointer-events: auto;
+}
 .marker-hit-target:active {
   cursor: grabbing;
 }
-.load-marker-focus-ring {
-  fill: none;
-  stroke: transparent;
-  stroke-width: 3;
-  pointer-events: none;
-  vector-effect: non-scaling-stroke;
-}
-.marker-hit-target:focus {
-  outline: none;
-}
-.marker-control:has(.marker-hit-target:focus-visible) .load-marker-focus-ring {
-  stroke: var(--focus);
+.marker-hit-target:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -5px;
 }
 .load-marker-tooltip {
   pointer-events: none;
@@ -228,8 +259,8 @@
   font-size: 1px;
   pointer-events: none;
 }
-.smith-chart:has(.marker-control[data-active='true']) .solution-path,
-.smith-chart:has(.marker-control[data-active='true']) .stub-path {
+.smith-chart-stage[data-marker-active='true'] .solution-path,
+.smith-chart-stage[data-marker-active='true'] .stub-path {
   animation: none;
 }
 .matching-solution {
@@ -443,8 +474,8 @@
 .help-tip-trigger {
   display: inline-grid;
   place-items: center;
-  min-width: 30px;
-  min-height: 30px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   border: 0;
   color: var(--accent);
@@ -502,7 +533,7 @@
 }
 .segmented input:checked + span {
   background: var(--accent);
-  color: white;
+  color: var(--selected-text);
   border-color: var(--accent);
 }
 .segmented input:focus-visible + span {
@@ -516,6 +547,9 @@ details {
   padding: 0.7rem 0;
 }
 summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   cursor: pointer;
   font-weight: 650;
 }
@@ -574,6 +608,7 @@ summary {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  min-height: 44px;
 }
 .matching-steps {
   grid-column: 1 / -1;
@@ -793,6 +828,17 @@ summary {
     flex-direction: column;
     padding: 0.35rem;
   }
+  .number-field,
+  .unit-field {
+    min-width: 0;
+  }
+  .field-control,
+  .unit-field .field-control {
+    min-width: 0;
+  }
+  .field-control input {
+    min-width: 0;
+  }
   .chart-panel {
     order: 1;
     padding: 0.35rem;
@@ -825,6 +871,12 @@ summary {
   }
   .smith-chart {
     max-height: none;
+  }
+  .smith-chart-stage {
+    width: 100%;
+  }
+  .marker-interaction-plane {
+    width: 100%;
   }
   .matching-legend {
     grid-template-columns: 1fr;
@@ -892,6 +944,18 @@ summary {
   }
 }
 @media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+  button,
+  input,
+  select,
+  summary,
+  .chart-summary,
+  .result-card,
+  .status-panel {
+    border-color: CanvasText;
+  }
   .solution-path,
   .stub-path,
   .swr-circle,
@@ -904,8 +968,8 @@ summary {
   .load-marker {
     fill: Highlight;
   }
-  .marker-control:has(.marker-hit-target:focus-visible) .load-marker-focus-ring {
-    stroke: Highlight;
+  .marker-hit-target:focus-visible {
+    outline-color: Highlight;
   }
   .load-marker-tooltip rect {
     fill: Canvas;
@@ -916,6 +980,18 @@ summary {
   }
   .result-card.selected {
     border: 3px solid Highlight;
+  }
+  .comparison-option[aria-pressed='true'],
+  .segmented input:checked + span {
+    color: HighlightText;
+    background: Highlight;
+    border-color: Highlight;
+  }
+  .field-error,
+  .error,
+  .warning,
+  .practical-warning {
+    color: CanvasText;
   }
   .matching-annotation,
   .junction-label {
