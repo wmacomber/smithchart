@@ -98,6 +98,26 @@ Generators exclude declared singular domains explicitly. Deterministic cases cov
 - Export Playwright coverage parses downloaded standalone SVG metadata, proves both complete construction texts, checks stale-draft gating, and verifies solved, stale, and matched print worksheets across Chromium, Firefox, and WebKit.
 - Offline Playwright coverage waits for worker activation, disables network, and reloads the same query-backed calculation from precache in Chromium, Firefox, and WebKit. WebKit uses an in-page scheduled reload because direct Playwright offline navigation fails inside WebKit; static-asset failure assertions remain identical. Supplemental Chromium coverage exercises the GitHub Pages project base; artifact checks provide browser-independent base and worker-scope evidence.
 - `scripts/verify-offline.mjs` binds document assets, favicon, navigation fallback, worker registration URL, and worker scope to one emitted base path.
+- `bun run verify:docs` checks every tracked Markdown link/fragment/image, curated screenshot dimensions,
+  documented commands, version/release consistency, ADR index/status, conduct contact, distribution
+  notices, and lock-aligned license inventory.
+- `bun run verify:reproducible-build` builds twice and hashes every sorted output path and byte. Matching
+  digests establish deterministic release artifacts for one frozen environment.
+- `bun run licenses` audits every locked package against its installed manifest or reviewed optional
+  platform mapping and verifies browser-distribution notice text.
+
+## Evidence boundaries
+
+- Mathematical correctness: published convention sources, alternate Python formulation, checked
+  fixtures, deterministic tests, and properties.
+- Product behavior: Vitest integration tests and Playwright user workflows.
+- Browser/visual behavior: configured desktop/mobile projects and reviewed Chromium snapshots.
+- Accessibility: axe plus explicit ARIA, keyboard, focus, reflow, motion, forced-color, and text assertions.
+- Distribution: build budgets, sanitized export, print, runtime-network scan, offline reload, Pages path,
+  license notices, audit, and reproducibility.
+
+Automated accessibility trees are release evidence. Manual VoiceOver/TalkBack sessions remain useful
+exploratory checks, not mandatory gates. Playwright proves browser behavior, not RF correctness.
 
 ## Commands
 
@@ -114,6 +134,9 @@ bun run ci
 BASE_PATH=/smithchart/ bun run build
 bun run verify:offline
 bun run verify:assets
+bun run verify:docs
+bun run licenses
+bun run verify:reproducible-build
 bun run test:e2e -- --project=chromium --grep-invert @visual
 bun run test:e2e -- --project=firefox --grep-invert @visual
 bun run test:e2e -- --project=webkit --grep-invert @visual
@@ -123,5 +146,10 @@ bun run test:e2e -- --workers=3 tests/e2e/export.spec.ts tests/e2e/copy.spec.ts 
 bun run test:e2e:pages -- --project=chromium
 git diff --check
 ```
+
+`bun run ci` performs format, lint, type, RF-boundary, reference, runtime-network, Vitest, build,
+asset, offline, documentation, and license-artifact checks. Browser matrices, audit, screenshot capture,
+and reproducibility remain explicit release commands because they are slower, mutate intentional
+artifacts, require browsers/network, or rebuild twice.
 
 Any RF equation change must update equation register, independent assertion, fixtures, TypeScript deterministic/property tests, and relevant conventions together.

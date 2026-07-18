@@ -1,7 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const required = ['dist/index.html', 'dist/favicon.svg', 'dist/sw.js'];
+const required = [
+  'dist/index.html',
+  'dist/favicon.svg',
+  'dist/LICENSE.txt',
+  'dist/THIRD_PARTY_NOTICES.txt',
+  'dist/sw.js',
+];
 for (const file of required) {
   if (!fs.existsSync(file)) {
     process.stderr.write(`Missing offline artifact: ${file}\n`);

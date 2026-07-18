@@ -1,11 +1,58 @@
 name: Feature request
-description: Propose an in-scope improvement
+description: Propose an in-scope bench, learning, accessibility, or engineering improvement
+title: 'feature: '
+labels: [enhancement]
 body:
   - type: textarea
     id: use-case
-    attributes: { label: Bench or learning use case }
-    validations: { required: true }
+    attributes:
+      label: Bench or learning use case
+      description: Describe who needs this and what they are trying to accomplish.
+    validations:
+      required: true
   - type: textarea
     id: proposal
-    attributes: { label: Proposed behavior }
-    validations: { required: true }
+    attributes:
+      label: Proposed behavior
+      description: Describe observable behavior, not only implementation.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Version 1 scope fit
+      description: Version 1 covers one frequency, lossless lines, and one open/short shunt stub.
+      options:
+        - Fits current scope
+        - Extends current scope
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Include current workarounds or simpler behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: math-impact
+    attributes:
+      label: Mathematical or RF impact
+      description: Note equations, conventions, units, reference cases, or solver semantics affected; write “none” when applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: accessibility-impact
+    attributes:
+      label: Accessibility impact
+      description: Explain keyboard, touch, text-equivalent, reflow, contrast, motion, and assistive-technology behavior.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and the documented project scope.
+          required: true

@@ -51,7 +51,9 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - Owner: Codex implementation; commit: pending user workflow.
 - Commands/results: `bun run test:chart` passes 40 chart tests; full `bun run test` passes 158 tests; targeted Playwright interaction, generated-touch, touch-target, keyboard, and accessibility matrix passes 34 tests with 2 expected CDP-only skips across Chromium, Firefox, and WebKit; `bun run build`, `bun run lint`, and `bun run typecheck` pass.
 - Interaction evidence: offset/scaled/letterboxed pointer mapping, radial boundary clamp, optional pointer snapping, RAF previews, pointer capture outside chart, Escape cancellation, single history commit/undo, live fields/tooltip, fine/coarse keyboard movement, focus, accessible values, and 44 CSS-pixel mobile target pass.
-- Deviation: desktop browser automation cannot validate VoiceOver or TalkBack gesture synthesis. iOS Safari plus VoiceOver and Android Chrome plus TalkBack remain documented manual release checks.
+- Historical deviation: desktop browser automation cannot synthesize VoiceOver or TalkBack gestures.
+  Phase 8A policy supersedes the earlier manual gate: those sessions are recommended exploratory
+  evidence, while cross-browser accessibility-tree/ARIA checks remain release evidence.
 
 ## Phase 5 matching visualization evidence — 2026-07-16
 
@@ -59,7 +61,8 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - Commands/results: independent reference verifier, RF boundary check, format, lint, typecheck, 191 Vitest tests, production build, 13 Chromium visual snapshots, full 102-pass browser matrix with 30 expected browser/visual skips, full `bun run ci`, and `git diff --check` pass.
 - Geometry evidence: all 12 reference cases and both terminations verify common SWR radius, clockwise feed sweep, solver junction endpoints, `g=1` stub samples, exact center endpoint, electrical/physical annotations, and A/B ordering.
 - UX evidence: selected and overlay modes, URL-invariant comparison preference, responsive cards, complete clipboard/fallback text, residual diagnostics, matched/failure suppression, staged/reduced motion, SVG export, print, forced colors, and textual equivalents pass.
-- Deviation: VoiceOver and TalkBack manual assistive-touch checks remain release-gate work per accessibility documentation.
+- Historical deviation: VoiceOver/TalkBack assistive-touch checks were deferred here. Phase 8A makes
+  them recommended exploratory evidence rather than release gates.
 
 ## Phase 6 education and UX evidence — 2026-07-16
 
@@ -67,7 +70,8 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - Commands/results: format, lint, typecheck, RF boundary, 12-case independent reference verification, 198 Vitest tests, production build, 17 Chromium visual baselines, and full Playwright matrix pass. Browser result: 127 passed with 38 expected non-Chromium visual, browser-limited clipboard, and generated-touch skips.
 - Education evidence: dismissible/restartable four-step guide; categorized Learn and Examples dialogs; eleven typed topics and ten chart targets; nine validated presets; preference v4 migration; contextual keyboard/touch help; temporary URL-invariant chart explanations; stale-draft gating; matched/active states; selected and alternate construction workflow; responsive advanced details; complete clipboard/fallback output; and construction assumptions/warnings pass.
 - Responsive/accessibility evidence: mobile chart/selected/input/alternate/advanced/warning order, mobile More actions disclosure, desktop grouped actions, axe serious/critical audit, keyboard focus and Escape behavior, reduced motion, forced colors, textual chart equivalents, and Chromium/Firefox/WebKit workflows pass.
-- Deviation: no runtime dependency, URL parameter, or RF-core change. VoiceOver and TalkBack manual assistive-touch checks remain Phase 7/release-gate work.
+- Deviation: no runtime dependency, URL parameter, or RF-core change. Earlier manual assistive-touch
+  release-gate language is superseded by the Phase 8A automated-evidence policy.
 
 ## Phase 7A export, print, and offline evidence — 2026-07-16
 
@@ -83,3 +87,30 @@ Record owner, PR/commit, command evidence, and deviations for each phase. Never 
 - [ ] Reviewer records final acceptance.
 
 Phase 8 local artifacts and deterministic build pass. Git tag, GitHub release, live Pages deployment, HTTPS smoke, rollback test, and reviewer acceptance remain external release gates.
+
+## Phase 8A public-readiness evidence — 2026-07-17
+
+- Owner: Codex implementation; commit pending user workflow.
+- Documentation: README, architecture, GitHub-rendered mathematics/sign conventions, testing,
+  accessibility, contribution, security, SemVer/changelog, release checklist, ADR index, and sanitized
+  SVG ADR implemented. Curated 1440×900 desktop and 390×844 mobile screenshots generated through an
+  isolated Playwright capture project.
+- Community/legal: bug/feature/config issue forms and PR template expanded; MIT distribution copy added;
+  551 locked packages and 10 browser-distribution notices verify through deterministic generation.
+- Repository: public description, homepage, thirteen topics, and private vulnerability reporting set;
+  visibility, MIT detection, Issues, HTTPS Pages, default branch, pinned workflow actions, secret
+  scanning/push protection, and Dependabot security updates verified.
+- Commands/results: format, lint, typecheck, RF boundary, 12-case/9-equation reference verifier,
+  runtime-network scan, 207 Vitest tests, production build, asset/offline/license gates, 206-pass full
+  browser matrix with 47 expected skips, Pages-path offline test, final `bun run ci`, clean Bun audit,
+  live HTTPS 200 smoke, and reproducible digest
+  `80c487ce672761782575bc6bd469786531a7aaf78d0cef381e64caf15576fa63` pass.
+- Governance deviation: no monitored private maintainer mailbox exists. Expanded conduct policy uses
+  GitHub's private abuse-report channel for sensitive GitHub incidents, states that reports go to
+  GitHub, and reserves public mentions for non-sensitive moderation. Contributor Covenant 2.1 supplies
+  the standards/enforcement basis but is adapted rather than adopted verbatim.
+- Repository protection: `main` requires pull requests, current `validate` and dependency `review`
+  checks, and resolved conversations. Zero external approvals preserve solo-maintainer merges. Admin
+  enforcement is enabled; force-push and deletion are disabled.
+- Release boundary: no tag or GitHub Release created. First-release rollback and reviewer acceptance
+  remain approval-controlled external gates.
