@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability privately
+    url: https://github.com/wmacomber/smithchart/security/advisories/new
+    about: Never disclose vulnerability details in a public issue.
+  - name: Contribution guidance
+    url: https://github.com/wmacomber/smithchart/blob/main/CONTRIBUTING.md
+    about: Read setup, verification, architecture, and pull-request requirements.
+  - name: Report sensitive conduct on GitHub
+    url: https://support.github.com/contact/report-abuse
+    about: Send sensitive GitHub conduct reports privately to GitHub; do not open a public issue.

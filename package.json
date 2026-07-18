@@ -2,6 +2,7 @@
   "name": "smith-chart-spa",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "bun@1.3.14",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -16,14 +17,17 @@
     "test:chart": "TMPDIR=/tmp vitest run src/chart",
     "test:e2e": "playwright test",
     "test:e2e:pages": "playwright test --config=playwright.pages.config.ts tests/e2e/offline.spec.ts",
+    "capture:docs": "TMPDIR=/tmp playwright test --config=playwright.docs.config.ts",
     "check:rf-boundary": "node scripts/check-rf-boundary.mjs && tsc -p tsconfig.rf.json",
     "verify:references": "python3 scripts/verify-reference-cases.py --fixtures tests/reference-cases",
     "verify:no-runtime-network": "node scripts/verify-no-runtime-network.mjs",
     "verify:offline": "node scripts/verify-offline.mjs",
     "verify:assets": "node scripts/verify-asset-budgets.mjs",
     "verify:reproducible-build": "node scripts/verify-reproducible-build.mjs",
+    "verify:docs": "python3 scripts/verify-docs.py",
     "licenses": "node scripts/dependency-license-report.mjs",
-    "ci": "bun run format:check && bun run lint && bun run typecheck && bun run check:rf-boundary && bun run verify:references && bun run verify:no-runtime-network && bun run test && bun run build && bun run verify:assets && bun run verify:offline"
+    "licenses:write": "node scripts/dependency-license-report.mjs --write",
+    "ci": "bun run format:check && bun run lint && bun run typecheck && bun run check:rf-boundary && bun run verify:references && bun run verify:no-runtime-network && bun run test && bun run build && bun run verify:assets && bun run verify:offline && bun run verify:docs"
   },
   "dependencies": {
     "lucide-react": "^1.25.0",
